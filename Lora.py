@@ -136,7 +136,7 @@ class Lora:
 
             # フィルタリング
             line = lorafilter.recvFilter(line)
-            if(line == None):
+            if(line is None):
                 continue
 
             # メッセージ転送

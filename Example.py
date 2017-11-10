@@ -4,6 +4,7 @@ from threading import Thread
 
 
 class Example:
+    """ Loraクラスに対しての、Send/Recv基本形 """
     def __init__(self):
         self.lora = Lora()
         self.lora.addRecvlistener(self.recvEvent)

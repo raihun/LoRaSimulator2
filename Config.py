@@ -4,6 +4,7 @@ from os.path import exists
 
 
 class Config:
+    """ config.ini Read/Write用 クラス """
     __filename = "config.ini"
 
     def __init__(self):

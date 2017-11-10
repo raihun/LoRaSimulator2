@@ -3,10 +3,16 @@ from Log import Log  # Log.py
 
 
 class LoraFilter:
+    """
+        フィルタリング用クラス
+        このクラスは、エラーメッセージをネットワーククラス等に
+        送らないために、存在する
+    """
     def __init__(self):
         self.log = Log()
         return
 
+    """ ES920LRから届いた受信メッセージのフィルタリング """
     def recvFilter(self, line):
         # 空行の場合
         if(line == ""):
