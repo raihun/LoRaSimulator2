@@ -1,40 +1,15 @@
 # -*- encoding:utf-8 -*-
-import configparser
-import os.path
+from configparser import ConfigParser
+from os.path import exists
 
 
 class Config:
-    filename = "config.ini"
-    
+    """ config.ini Read/Write用 クラス """
+    __filename = "config.ini"
+
     def __init__(self):
-        self.__config = configparser.ConfigParser()
+        self.__config = ConfigParser()
         self.__readConfig()
-        return
-
-    def __readConfig(self):
-        if(os.path.exists("config.ini") == False):
-            # Device setting
-            self.__config["Device"] = {}
-            self.__config["Device"]["Name"] = "/dev/tty.USB0"
-            self.__config["Device"]["Baudrate"] = "9600"
-
-            # LoRa setting
-            self.__config["LoRa"] = {}
-            self.__config["LoRa"]["Bandwidth"] = "4"  # 4:125kHz
-            self.__config["LoRa"]["Spreadingfactor"] = "12"
-            self.__config["LoRa"]["Channel"] = "1"
-            self.__config["LoRa"]["Panid"] = "0001"
-            self.__config["LoRa"]["Ownid"] = "0001"
-            self.__config["LoRa"]["Power"] = "13"  # Min:-4 to Max:13
-
-            # Create config file
-            self.__writeConfig()
-        self.__config.read(self.filename)
-        return
-
-    def __writeConfig(self):
-        with open(self.filename, "w") as fp:
-            self.__config.write(fp)
         return
 
     def getDevicename(self):
@@ -58,7 +33,7 @@ class Config:
     def getSpreadingfactor(self):
         spreadingfactor = self.__config["LoRa"]["Spreadingfactor"]
         if(spreadingfactor == ""):
-            spreadingfactor = "12"
+            spreadingfactor = "7"  # 7-12
         return spreadingfactor
 
     def getChannel(self):
@@ -84,3 +59,31 @@ class Config:
         if(power == ""):
             power = "13"
         return power
+
+    """ コンフィグファイル 読込 """
+    def __readConfig(self):
+        if(not exists(self.__filename)):
+            # Device setting
+            self.__config["Device"] = {}
+            self.__config["Device"]["Name"] = "/dev/tty.USB0"
+            self.__config["Device"]["Baudrate"] = "9600"
+
+            # LoRa setting
+            self.__config["LoRa"] = {}
+            self.__config["LoRa"]["Bandwidth"] = "4"  # 4:125kHz
+            self.__config["LoRa"]["Spreadingfactor"] = "12"
+            self.__config["LoRa"]["Channel"] = "1"
+            self.__config["LoRa"]["Panid"] = "0001"
+            self.__config["LoRa"]["Ownid"] = "0001"
+            self.__config["LoRa"]["Power"] = "13"  # Min:-4 to Max:13
+
+            # Create config file
+            self.__writeConfig()
+        self.__config.read(self.__filename)
+        return
+
+    """ コンフィグファイル 書出 """
+    def __writeConfig(self):
+        with open(self.__filename, "w") as fp:
+            self.__config.write(fp)
+        return
