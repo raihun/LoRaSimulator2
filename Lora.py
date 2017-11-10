@@ -24,7 +24,6 @@ class Lora:
         文字列, 文字列配列 両方対応
     """
     def send(self, data):
-        print(data)
         if(type(data) == list):
             for datum in data:
                 Lora.sendMessages.append(datum)
@@ -90,6 +89,7 @@ class Lora:
         self.send("f %s" % self.__config.getOwnid())
         self.send(["l 2", "n 2", "o 1", "p 1", "q 1", "s 1"])
         self.send("u %s" % self.__config.getPower())
+        self.send(["w", "z"])
         return
 
     """ 送信待機スレッド """
@@ -105,6 +105,7 @@ class Lora:
             cmd = msg.strip()
             cmd = "{0}\r\n".format(cmd).encode()
             device.write(cmd)
+            sleep(0.1)  # コマンド間隔 最低100ms必要
         return
 
     """ 受信待機スレッド """

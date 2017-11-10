@@ -1,13 +1,11 @@
 # -*- encoding:utf-8 -*-
-import sys
+from Lora import Lora
 from threading import Thread
-import time
-import Lora
 
 
 class Example:
     def __init__(self):
-        self.lora = Lora.Lora()
+        self.lora = Lora()
         self.lora.addRecvlistener(self.recvEvent)
 
         self.thSend = Thread(
@@ -27,8 +25,3 @@ class Example:
     def recvEvent(self, msg):
         print(msg)
         return
-
-Example = Example()
-
-while True:
-    time.sleep(0.01)
