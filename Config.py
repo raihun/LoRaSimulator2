@@ -1,13 +1,13 @@
 # -*- encoding:utf-8 -*-
-import configparser
-import os.path
+from configparser import ConfigParser
+from os.path import exists
 
 
 class Config:
     __filename = "config.ini"
 
     def __init__(self):
-        self.__config = configparser.ConfigParser()
+        self.__config = ConfigParser()
         self.__readConfig()
         return
 
@@ -61,7 +61,7 @@ class Config:
 
     """ コンフィグファイル 読込 """
     def __readConfig(self):
-        if(not os.path.exists(self.__filename)):
+        if(not exists(self.__filename)):
             # Device setting
             self.__config["Device"] = {}
             self.__config["Device"]["Name"] = "/dev/tty.USB0"
