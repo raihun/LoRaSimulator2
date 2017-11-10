@@ -1,5 +1,5 @@
 # -*- encoding:utf-8 -*-
-from Example import Example
+from Network import Network
 import sys
 from time import sleep
 from Lora import Lora
@@ -7,7 +7,7 @@ from Lora import Lora
 
 def main(argc, argv):
     lora = Lora()
-    example = Example()
+    network = Network()
     while True:
         sleep(1.0)
     return
