@@ -6,8 +6,8 @@ from threading import Thread
 from time import sleep
 
 
-""" ES920LRを直接操作するクラス """
 class Lora:
+    """ ES920LRを直接操作するクラス """
     def __init__(self):
         self.__config = Config()
         self.__connect()  # ES920LR Connect
