@@ -1,67 +1,124 @@
 # -*- encoding:utf-8 -*-
-import serial
-import threading
-import Config
+from collections import deque
+from Config import Config  # Config.py
+from serial import Serial
+from threading import Thread
+from time import sleep
 
 
+""" ES920LRを直接操作するクラス """
 class Lora:
     def __init__(self):
-        self.config = Config.Config()
-        self.__connect()
+        self.__config = Config()
+        self.__connect()  # ES920LR Connect
+        self.__setting()  # ES920LR Setting
         return
 
-    def __connect(self):
-        devicename = self.config.getDevicename()
-        baudrate = self.config.getBaudrate()
+    """ シリアル通信の受信メッセージを送るメソッドを追加 """
+    def addRecvlistener(self, recvEvent):
+        Lora.recvListeners.append(recvEvent)
+        return
 
+    """
+        シリアル通信の送信メッセージを送るメソッド
+        文字列, 文字列配列 両方対応
+    """
+    def send(self, data):
+        print(data)
+        if(type(data) == list):
+            for datum in data:
+                Lora.sendMessages.append(datum)
+        else:
+            Lora.sendMessages.append(data)
+        return
+
+    """ 初回インスタンス化時のみ有効となる接続処理 """
+    def __connect(self):
+        # 初回起動チェック
         try:
-            self.__device = serial.Serial(devicename, int(baudrate))
+            if(Lora.isConnect):
+                return
+        except AttributeError:
+            Lora.isConnect = True
+
+        # Connect device
+        devicename = self.__config.getDevicename()
+        baudrate = self.__config.getBaudrate()
+        try:
+            Lora.device = Serial(devicename, int(baudrate))
         except Exception as e:
             print(e)
             return
 
-        # Receive thread
-        self.__thRecv = threading.Thread(
-            target=self.__recvThread,
-            args=(None, self.__device)
-        )
-        self.__thRecv.setDaemon(True)
-        self.__thRecv.start()
+        # Set Send/Recv variables
+        Lora.sendMessages = deque()
+        Lora.recvListeners = []
 
         # Send thread
-        self.__thSend = threading.Thread(
+        self.__thSend = Thread(
             target=self.__sendThread,
-            args=(None, self.__device)
+            args=(None, Lora.device, Lora.sendMessages)
         )
         self.__thSend.setDaemon(True)
         self.__thSend.start()
+
+        # Receive thread
+        self.__thRecv = Thread(
+            target=self.__recvThread,
+            args=(None, Lora.device, Lora.recvListeners)
+        )
+        self.__thRecv.setDaemon(True)
+        self.__thRecv.start()
         return
 
+    """ 初回インスタンス化時のみ有効となる設定処理 """
     def __setting(self):
+        # 初回起動チェック
+        try:
+            if(Lora.initSetting):
+                return
+        except AttributeError:
+            Lora.initSetting = True
+
+        # 各種設定
+        sleep(3.0)
+        self.send(["2", "a 2"])
+        self.send("b %s" % self.__config.getBandwidth())
+        self.send("c %s" % self.__config.getSpreadingfactor())
+        self.send("d %s" % self.__config.getChannel())
+        self.send("e %s" % self.__config.getPanid())
+        self.send("f %s" % self.__config.getOwnid())
+        self.send(["l 2", "n 2", "o 1", "p 1", "q 1", "s 1"])
+        self.send("u %s" % self.__config.getPower())
         return
 
-    def __send(self, rawdata):
-        return
-
-    def __recv(self):
-        return
-
+    """ 送信待機スレッド """
     @staticmethod
-    def __recvThread(self, device):
-        print("Start recv thread.")
+    def __sendThread(self, device, sendMessages):
         while True:
-            if(device.inWaiting() > 0):
-                try:
-                    line = device.readline().decode('utf-8')
-                except UnicodeDecodeError:
-                    continue
-                print(line, end='')
-        return
-
-    @staticmethod
-    def __sendThread(self, device):
-        while True:
-            cmd = input()
+            if(len(sendMessages) <= 0):  # 送信待機
+                sleep(0.01)
+                continue
+            msg = sendMessages.popleft()
+            if(msg == ""):
+                continue
+            cmd = msg.strip()
             cmd = "{0}\r\n".format(cmd).encode()
             device.write(cmd)
+        return
+
+    """ 受信待機スレッド """
+    @staticmethod
+    def __recvThread(self, device, recvListeners):
+        while True:
+            if(device.inWaiting() <= 0):  # 受信待機
+                sleep(0.01)
+                continue
+            try:
+                line = device.readline().decode('utf-8').strip()
+            except UnicodeDecodeError:
+                continue
+            if(line != ""):
+                for recvEvent in recvListeners:
+                    recvEvent(line)
         return
