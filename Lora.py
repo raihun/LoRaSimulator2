@@ -1,6 +1,7 @@
 # -*- encoding:utf-8 -*-
 from collections import deque
 from Config import Config  # Config.py
+from LoraFilter import LoraFilter  # LoraFilter.py
 from serial import Serial
 from threading import Thread
 from time import sleep
@@ -96,30 +97,49 @@ class Lora:
     @staticmethod
     def __sendThread(self, device, sendMessages):
         while True:
-            if(len(sendMessages) <= 0):  # 送信待機
+            # 送信待機
+            if(len(sendMessages) <= 0):
                 sleep(0.01)
                 continue
+
+            # 送信待機メッセージキューからデキュー
             msg = sendMessages.popleft()
+
+            # メッセージが空の場合
             if(msg == ""):
                 continue
+
+            # メッセージ送信
             cmd = msg.strip()
             cmd = "{0}\r\n".format(cmd).encode()
             device.write(cmd)
-            sleep(0.1)  # コマンド間隔 最低100ms必要
+
+            # コマンド間隔 最低100ms必要
+            sleep(0.1)
         return
 
     """ 受信待機スレッド """
     @staticmethod
     def __recvThread(self, device, recvListeners):
+        lorafilter = LoraFilter()
         while True:
-            if(device.inWaiting() <= 0):  # 受信待機
+            # 受信待機
+            if(device.inWaiting() <= 0):
                 sleep(0.01)
                 continue
+
+            # UTF-8 に変換できない例外 (ES920LR電源投入時発生)
             try:
                 line = device.readline().decode('utf-8').strip()
             except UnicodeDecodeError:
                 continue
-            if(line != ""):
-                for recvEvent in recvListeners:
-                    recvEvent(line)
+
+            # フィルタリング
+            line = lorafilter.recvFilter(line)
+            if(line == None):
+                continue
+
+            # メッセージ転送
+            for recvEvent in recvListeners:
+                recvEvent(line)
         return
