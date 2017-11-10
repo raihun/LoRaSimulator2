@@ -58,7 +58,7 @@ class Config:
     def getSpreadingfactor(self):
         spreadingfactor = self.__config["LoRa"]["Spreadingfactor"]
         if(spreadingfactor == ""):
-            spreadingfactor = "12"
+            spreadingfactor = "7"  # 7-12
         return spreadingfactor
 
     def getChannel(self):
