@@ -5,14 +5,14 @@ import os.path
 
 class Config:
     filename = "config.ini"
-    
+
     def __init__(self):
         self.__config = configparser.ConfigParser()
         self.__readConfig()
         return
 
     def __readConfig(self):
-        if(os.path.exists("config.ini") == False):
+        if(not os.path.exists("config.ini")):
             # Device setting
             self.__config["Device"] = {}
             self.__config["Device"]["Name"] = "/dev/tty.USB0"

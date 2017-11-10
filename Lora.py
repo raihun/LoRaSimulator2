@@ -21,12 +21,18 @@ class Lora:
             return
 
         # Receive thread
-        self.__thRecv = threading.Thread(target=self.__recvThread, args=(None, self.__device))
+        self.__thRecv = threading.Thread(
+            target=self.__recvThread,
+            args=(None, self.__device)
+        )
         self.__thRecv.setDaemon(True)
         self.__thRecv.start()
 
         # Send thread
-        self.__thSend = threading.Thread(target=self.__sendThread, args=(None, self.__device))
+        self.__thSend = threading.Thread(
+            target=self.__sendThread,
+            args=(None, self.__device)
+        )
         self.__thSend.setDaemon(True)
         self.__thSend.start()
         return
