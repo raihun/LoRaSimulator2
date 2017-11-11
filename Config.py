@@ -71,7 +71,7 @@ class Config:
             # LoRa setting
             self.__config["LoRa"] = {}
             self.__config["LoRa"]["Bandwidth"] = "4"  # 4:125kHz
-            self.__config["LoRa"]["Spreadingfactor"] = "12"
+            self.__config["LoRa"]["Spreadingfactor"] = "7"  # 7-12
             self.__config["LoRa"]["Channel"] = "1"
             self.__config["LoRa"]["Panid"] = "0001"
             self.__config["LoRa"]["Ownid"] = "0001"

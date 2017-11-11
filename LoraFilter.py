@@ -18,6 +18,11 @@ class LoraFilter:
         if(line == ""):
             return None
 
+        # OKの場合
+        if(line == "OK"):
+            return None
+
+        # NGの場合
         if(line.find("NG") >= 0):
             code = line.split(" ")[1]
             if(code == "001"):
@@ -42,4 +47,5 @@ class LoraFilter:
                 self.log.add("送信異常(送信未完了)", "Error")
             return None
 
+        # 上記以外の場合
         return line
