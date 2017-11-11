@@ -36,10 +36,10 @@ class Lora:
     def __connect(self):
         # 初回起動チェック
         try:
-            if(Lora.isConnect):
+            if(Lora.__isConnect):
                 return
         except AttributeError:
-            Lora.isConnect = True
+            Lora.__isConnect = True
 
         # Connect device
         devicename = self.__config.getDevicename()
@@ -75,10 +75,10 @@ class Lora:
     def __setting(self):
         # 初回起動チェック
         try:
-            if(Lora.initSetting):
+            if(Lora.__initSetting):
                 return
         except AttributeError:
-            Lora.initSetting = True
+            Lora.__initSetting = True
 
         # 各種設定
         sleep(3.0)
