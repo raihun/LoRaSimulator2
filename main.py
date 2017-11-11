@@ -9,7 +9,11 @@ def main(argc, argv):
     lora = Lora()
     network = Network()
     while True:
-        sleep(1.0)
+        try:
+            sleep(1.0)
+        except KeyboardInterrupt:
+            print("Terminated.")
+            break
     return
 
 
