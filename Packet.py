@@ -129,7 +129,7 @@ class Packet:
 
     """ 生パケット -> Packet() """
     def importPacket(self, data):
-        print(data)
+        print("[Raw packetR] {0}".format(data))
         # フレーム長 未満
         if(len(data) < 24):
             return
@@ -154,8 +154,16 @@ class Packet:
 
     """ Packet() -> 生パケット """
     def exportPacket(self):
-
-        return
+        data = ""
+        data = data + self.getPanId()
+        data = data + self.getDatalinkDst()
+        data = data + self.getNetworkDst()
+        data = data + self.getNetworkSrc()
+        data = data + ",{0:1X}".format(self.mergeByte())
+        data = data + ",{0:1X},".format(self.getSequenceNo())
+        data = data + self.getPayload()
+        print("[Raw packetS] {0}".format(data))
+        return data
 
     """ RSSI値 算出 """
     def convertRSSI(self, rawrssi):
