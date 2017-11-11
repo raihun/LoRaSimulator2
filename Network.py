@@ -35,6 +35,7 @@ class Network:
             p.setTTL(31)
             p.setSequenceNo(255)
             p.setPayload("HELLO")
+
             lora.send(p.exportPacket())
             sleep(5.0)
         return

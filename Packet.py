@@ -159,8 +159,8 @@ class Packet:
         data = data + self.getDatalinkDst()
         data = data + self.getNetworkDst()
         data = data + self.getNetworkSrc()
-        data = data + ",{0:1X}".format(self.mergeByte())
-        data = data + ",{0:1X},".format(self.getSequenceNo())
+        data = data + "{0:1X}".format(self.mergeByte())
+        data = data + "{0:1X}".format(self.getSequenceNo())
         data = data + self.getPayload()
         print("[Raw packetS] {0}".format(data))
         return data
