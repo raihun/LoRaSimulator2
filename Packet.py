@@ -13,6 +13,14 @@ class Packet:
     def __init__(self):
         return
 
+    """ PAN-ID関連"""
+    __panId = "0000"
+    def setPanId(self, panid):
+        self.__panId = panid
+        return
+    def getPanId(self):
+        return self.__panId
+
     """ データリンク層関連 """
     __datalinkDst = "0000"
     def setDatalinkDst(self, nodeid):
@@ -101,19 +109,44 @@ class Packet:
 
     """ 生パケット -> Packet() """
     def importPacket(self, data):
-        self.setRSSI(self.convertRSSI(data[0:4]))
-        self.setDatalinkSrc(data[4:4])
-
         print(data)
-        print(self.getDatalinkSrc())
+        # フレーム長 未満
+        if(len(data) < 24):
+            return
+        self.setRSSI(self.convertRSSI(data[0:4]))
+        self.setPanId(data[4:8])
+        self.setDatalinkSrc(data[8:12])
+        self.setNetworkDst(data[12:16])
+        self.setNetworkDst(data[16:20])
+        margedData = int(data[20:22], 16)
+        ptype, ttl = self.purgeByte(margedData)
+        self.setPacketType(ptype)
+        self.setTTL(ttl)
+        sequenceNo = int(data[22:24], 16)
+        self.setSequenceNo(sequenceNo)
+
+        # ペイロードなし
+        if(len(data) <= 24):
+            return
+
+        self.setPayload(data[24:])
         return
 
     """ Packet() -> 生パケット """
     def exportPacket(self):
-        
+
         return
 
     """ RSSI値 算出 """
     def convertRSSI(self, rawrssi):
         rawrssi = int(rawrssi, 16)
         return -(rawrssi & 0x8000) | (rawrssi & 0x7FFF)
+
+    """ Type + TTL 関連 """
+    def mergeByte(self):
+        ptype = self.getPacketType()
+        ttl = self.getTTL()
+        return (ptype << 6 | ttl)
+
+    def purgeByte(self, data):
+        return [data >> 6, data & 0x1F]
