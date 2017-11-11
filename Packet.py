@@ -166,7 +166,7 @@ class Packet:
     def mergeByte(self):
         ptype = self.getPacketType()
         ttl = self.getTTL()
-        return (ptype << 6 | ttl)
+        return (ptype << 5 | ttl)
 
     def purgeByte(self, data):
-        return [data >> 6, data & 0x1F]
+        return [data >> 5, data & 0x1F]
