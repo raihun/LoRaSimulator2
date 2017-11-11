@@ -63,11 +63,11 @@ class Packet:
 
     """
         パケットタイプ (3bit: 0-7)
-        0: 通常パケット
-        1: 通常パケット(終了)
-        2: ACK
+        0: ACK
+        1: 通常パケット
+        2: 通常パケット(終了)
         3: ルートブロードキャスト
-        4: Reserved
+        4: ルートブロードキャスト(終了)
         5: Reserved
         6: Reserved
         7: Reserved
@@ -82,7 +82,7 @@ class Packet:
         return self.__packetType
 
     """ TTL (5bit: 0-31) """
-    __ttl = 0
+    __ttl = 31
 
     def setTTL(self, ttl):
         self.__ttl = ttl
