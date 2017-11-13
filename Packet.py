@@ -170,7 +170,7 @@ class Packet:
                 self.setPacketType(6)
             datum += "{0:02X}".format(self.mergeByte())
             datum += "{0:02X}".format(i % 0xFF)
-            if(size > 0):
+            if(size >= 0):
                 datum += splitPayload[i]
             data.append(datum)
             i += 1
