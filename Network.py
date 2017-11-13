@@ -64,13 +64,15 @@ class Network:
 
     # テストメソッド
     def __sendThread2(self):
-        while True:
-            sendPacket = Packet()
-            sendPacket.setPanId("0001")
-            sendPacket.setDatalinkDst("FFFF")
-            sendPacket.setPacketType(1)
-            Network.sendPackets.append(sendPacket)
-            sleep(5.0)
+        sendPacket = Packet()
+        sendPacket.setPanId("0001")
+        sendPacket.setDatalinkDst("FFFF")
+        sendPacket.setPacketType(0)
+        p = ""
+        for i in range(0, 0xFF):
+            p = p + "."
+        sendPacket.setPayload(p)
+        Network.sendPackets.append(sendPacket)
 
     """ 送信待機スレッド """
     @staticmethod
@@ -96,14 +98,15 @@ class Network:
         # Ack packet
         ackPacket = Packet()
         ackPacket.importPacket(msg)
-        if(ackPacket.getPacketType() is not 0):
+        if(ackPacket.getPacketType() is 0 or ackPacket.getPacketType() is 2):
             datalinkSrc = ackPacket.getDatalinkSrc()
             ackPacket.setDatalinkDst(datalinkSrc)
             ackPacket.setDatalinkSrc(Network.ownid)
             ackPacket.setNetworkDst(datalinkSrc)
             ackPacket.setNetworkSrc(Network.ownid)
-            ackPacket.setPacketType(0)
+            ackPacket.setPacketType(1)
             ackPacket.setTTL(31)
+            ackPacket.setPayload("{0:02X}".format(ackPacket.getSequenceNo()))
             ackPacket.setSequenceNo(0)
             self.lora.send(ackPacket.exportPacket())
 
