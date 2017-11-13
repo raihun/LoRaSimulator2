@@ -154,16 +154,25 @@ class Packet:
 
     """ Packet() -> 生パケット """
     def exportPacket(self):
-        data = ""
-        data = data + self.getPanId()
-        data = data + self.getDatalinkDst()
-        data = data + self.getNetworkDst()
-        data = data + self.getNetworkSrc()
-        data = data + "{0:02X}".format(self.mergeByte())
-        data = data + "{0:02X}".format(self.getSequenceNo())
-        data = data + self.getPayload()
+        data = []
+        splitPayload = self.__split_str(self.getPayload(), 38)
+        for i in range(0, len(splitPayload)):
+            datum = ""
+            datum = datum + self.getPanId()
+            datum = datum + self.getDatalinkDst()
+            datum = datum + self.getNetworkDst()
+            datum = datum + self.getNetworkSrc()
+            datum = datum + "{0:02X}".format(self.mergeByte())
+            datum = datum + "{0:02X}".format(i)
+            datum = datum + splitPayload[i]
+            data.append(datum)
         print("[Raw packetS] {0}".format(data))
         return data
+
+    """ 文字列を指定バイト数ごとに分割 """
+    def __split_str(self, s, n):
+        length = len(s)
+        return [s[i:i+n] for i in range(0, length, n)]
 
     """ RSSI値 算出 """
     def convertRSSI(self, rawrssi):
