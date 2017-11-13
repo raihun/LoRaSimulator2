@@ -163,7 +163,7 @@ class Packet:
             datum = datum + self.getNetworkDst()
             datum = datum + self.getNetworkSrc()
             datum = datum + "{0:02X}".format(self.mergeByte())
-            datum = datum + "{0:02X}".format(i)
+            datum = datum + "{0:02X}".format(i % 0xFF)
             datum = datum + splitPayload[i]
             data.append(datum)
         print("[Raw packetS] {0}".format(data))
