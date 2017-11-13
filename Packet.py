@@ -162,6 +162,11 @@ class Packet:
             datum = datum + self.getDatalinkDst()
             datum = datum + self.getNetworkDst()
             datum = datum + self.getNetworkSrc()
+            # FINフラグ
+            if(i >= len(splitPayload) - 1 and self.getPacketType() is 0):
+                self.setPacketType(2)
+            if(i >= len(splitPayload) - 1 and self.getPacketType() is 4):
+                self.setPacketType(6)
             datum = datum + "{0:02X}".format(self.mergeByte())
             datum = datum + "{0:02X}".format(i % 0xFF)
             datum = datum + splitPayload[i]
