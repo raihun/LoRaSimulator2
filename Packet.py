@@ -156,21 +156,26 @@ class Packet:
     def exportPacket(self):
         data = []
         splitPayload = self.__split_str(self.getPayload(), 38)
-        for i in range(0, len(splitPayload)):
+        size = len(splitPayload) - 1
+        i = 0
+        while True:
             datum = ""
-            datum = datum + self.getPanId()
-            datum = datum + self.getDatalinkDst()
-            datum = datum + self.getNetworkDst()
-            datum = datum + self.getNetworkSrc()
-            # FINフラグ
-            if(i >= len(splitPayload) - 1 and self.getPacketType() is 0):
+            datum += self.getPanId()
+            datum += self.getDatalinkDst()
+            datum += self.getNetworkDst()
+            datum += self.getNetworkSrc()
+            if(i >= size and self.getPacketType() is 0):
                 self.setPacketType(2)
-            if(i >= len(splitPayload) - 1 and self.getPacketType() is 4):
+            if(i >= size and self.getPacketType() is 4):
                 self.setPacketType(6)
-            datum = datum + "{0:02X}".format(self.mergeByte())
-            datum = datum + "{0:02X}".format(i % 0xFF)
-            datum = datum + splitPayload[i]
+            datum += "{0:02X}".format(self.mergeByte())
+            datum += "{0:02X}".format(i % 0xFF)
+            if(size > 0):
+                datum += splitPayload[i]
             data.append(datum)
+            i += 1
+            if(i > size):
+                break
         print("[Raw packetS] {0}".format(data))
         return data
 
