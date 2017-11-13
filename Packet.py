@@ -63,14 +63,14 @@ class Packet:
 
     """
         パケットタイプ (3bit: 0-7)
-        0: ACK
-        1: 通常パケット
-        2: 通常パケット(終了)
-        3: ルートブロードキャスト
-        4: ルートブロードキャスト(終了)
-        5: Reserved
-        6: Reserved
-        7: Reserved
+        0(000): Normal
+        1(001): Normal + ACK
+        2(010): Normal + FIN
+        3(011): Other (Payload 1Byte目がTypeとなる)
+        4(100): Route
+        5(101): Route + ACK
+        6(110): Route + FIN
+        7(111): Reserved
     """
     __packetType = 0
 
