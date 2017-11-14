@@ -12,6 +12,12 @@ class Config:
         self.__readConfig()
         return
 
+    def getSimulator(self):
+        simulator = self.__config["General"]["Simulator"]
+        if(simulator == ""):
+            simulator = "false"
+        return simulator
+
     def getDevicename(self):
         devicename = self.__config["Device"]["Name"]
         if(devicename == ""):
@@ -63,6 +69,10 @@ class Config:
     """ コンフィグファイル 読込 """
     def __readConfig(self):
         if(not exists(self.__filename)):
+            # General
+            self.__config["General"] = {}
+            self.__config["General"]["Simulator"] = "false"
+
             # Device setting
             self.__config["Device"] = {}
             self.__config["Device"]["Name"] = "/dev/tty.USB0"
