@@ -8,9 +8,9 @@ from Lora import Lora
 
 def main(argc, argv):
     lora = Lora()
-    example = Example()
-    network1 = Network()
-    network2 = Network()
+    network = Network()
+    example1 = Example()
+    example2 = Example()
     while True:
         try:
             sleep(1.0)
