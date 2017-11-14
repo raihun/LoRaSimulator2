@@ -1,119 +1,58 @@
 # -*- encoding:utf-8 -*-
-from collections import deque
-from Config import Config  # Config.py
-from Lora import Lora  # Lora.py
-from Packet import Packet  # Packet.py
-from threading import Thread
-from time import sleep, time
+from Config import Config
+from Lora import Lora
+from Packet import Packet
 
 
-class Network:
+class Network(Lora):
     """
         ネットワークの基礎クラス
-        ACK管理、TTL減算、
+        ACK、TTL、Repeater
     """
     def __init__(self):
-        # ownid 取得用
-        self.__config = Config()
-
-        # NIC生成
-        self.__initNic()
+        super(Network, self).__init__()
+        self.config = Config()
+        self.__setting()
         return
 
-    """ 受信パケットを送るメソッドを追加 """
+    """ @override """
     def addRecvlistener(self, recvEvent):
-        Network.recvListeners.append(recvEvent)
+        global gRecvListeners
+        gRecvListeners.append(recvEvent)
         return
 
-    """
-        初回インスタンス化時のみ有効となるNIC生成
-        送信パケットキュー, 受信パケットキューを用意
-    """
-    def __initNic(self):
+    """ @override """
+    def send(self, data="", dstid="FFFF", ptype=0):
+        super(Network, self).send(data)
+        return
+
+    """ 初回インスタンス化時のみ有効となる設定処理 """
+    def __setting(self):
         # 初回起動チェック
         try:
-            if(Network.__initNicMethod):
+            if(Network.__isSetting):
                 return
         except AttributeError:
-            Network.__initNicMethod = True
+            Network.__isSetting = True
 
-        # 各種変数/配列
-        Network.ownid = self.__config.getOwnid()
-        Network.sendPackets = deque()
-        Network.recvListeners = []
+        # Set Send/Recv variables
+        global gRecvListeners
+        gRecvListeners = []
 
-        # 受信イベントメソッドを登録
-        self.lora = Lora()
-        self.lora.addRecvlistener(self.recvEvent)
-
-        # 送信待機スレッド 作成
-        self.__thSend = Thread(
-            target=Network.__sendThread,
-            args=(None, self.lora, Network.sendPackets)
-        )
-        self.__thSend.setDaemon(True)
-        self.__thSend.start()
-
-        # テストコード
-        self.testThread = Thread(
-            target=self.__sendThread2
-        )
-        self.testThread.setDaemon(True)
-        self.testThread.start()
+        # LoraのReceive Listenersに追加
+        super(Network, self).addRecvlistener(self.recvEvent)
         return
 
-    # テストメソッド
-    def __sendThread2(self):
-        sendPacket = Packet()
-        sendPacket.setPanId("0001")
-        sendPacket.setDatalinkDst("FFFF")
-        sendPacket.setPacketType(0)
-        p = ""
-        for i in range(0, 0xFF):
-            p = p + "."
-        sendPacket.setPayload(p)
-        Network.sendPackets.append(sendPacket)
-
-    """ 送信待機スレッド """
-    @staticmethod
-    def __sendThread(self, lora, sendPackets):
-        while True:
-            # 送信待機
-            if(len(sendPackets) <= 0):
-                sleep(0.01)
-                continue
-
-            # 送信待機メッセージキューからデキュー
-            sendPacket = sendPackets.popleft()
-
-            # パケット送信
-            lora.send(sendPacket.exportPacket())
-        return
-
-    """
-        受信イベントメソッド
-        LoraクラスがES920LRよりシリアル受信した際に呼び出される
-    """
     def recvEvent(self, msg):
-        # Ack packet
-        ackPacket = Packet()
-        ackPacket.importPacket(msg)
-        if(ackPacket.getPacketType() is 0 or ackPacket.getPacketType() is 2):
-            datalinkSrc = ackPacket.getDatalinkSrc()
-            ackPacket.setDatalinkDst(datalinkSrc)
-            ackPacket.setDatalinkSrc(Network.ownid)
-            ackPacket.setNetworkDst(datalinkSrc)
-            ackPacket.setNetworkSrc(Network.ownid)
-            ackPacket.setPacketType(1)
-            ackPacket.setTTL(31)
-            ackPacket.setPayload("{0:02X}".format(ackPacket.getSequenceNo()))
-            ackPacket.setSequenceNo(0)
-            self.lora.send(ackPacket.exportPacket())
+        # 受信パケット
+        packet = Packet()
+        packet.importPacket(msg)
+
+        # 自分宛てではない場合
+        # hoge
 
         # メッセージ転送
-        for recvEvent in Network.recvListeners:
-            recvPacket = Packet()
-            recvPacket.setDatalinkDst(Network.ownid)
-            recvPacket.importPacket(msg)
-            recvEvent(recvPacket)
+        global gRecvListeners
+        for recvEvent in gRecvListeners:
+            recvEvent(msg)
         return
