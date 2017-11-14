@@ -9,3 +9,6 @@ fix:
 
 kill:
 	pkill Python
+
+wc:
+	wc -l *.py
