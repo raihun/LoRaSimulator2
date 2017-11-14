@@ -1,7 +1,7 @@
 # -*- encoding:utf-8 -*-
 
 
-class Serial:
+class Simulator:
     """
         このクラスでは、ES920LRのシミュレータを作成する
     """

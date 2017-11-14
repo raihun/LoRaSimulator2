@@ -2,6 +2,8 @@
 from collections import deque
 from Config import Config  # Config.py
 from LoraFilter import LoraFilter  # LoraFilter.py
+from serial import Serial
+from Simulator import Simulator
 from threading import Thread
 from time import sleep, time
 
@@ -42,21 +44,20 @@ class Lora:
             Lora.__isStart = False
             Lora.__isLock = False
 
-        # Check simulator mode
+        # Get simulator mode
         mode = self.__config.getSimulator().strip().lower()
-        if(mode in "true"):
-            from Simulator import Serial
-        else:
-            from serial import Serial
 
         # Connect device
         devicename = self.__config.getDevicename()
         baudrate = self.__config.getBaudrate()
-        try:
-            Lora.device = Serial(devicename, int(baudrate))
-        except Exception as e:
-            print(e)
-            return
+        if(mode in "true"):
+            Lora.device = Simulator(devicename, int(baudrate))
+        else:
+            try:
+                Lora.device = Serial(devicename, int(baudrate))
+            except Exception as e:
+                print(e)
+                return
 
         # ES920 Welcomeメッセージ待機
         sleep(3.0)
