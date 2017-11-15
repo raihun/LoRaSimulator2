@@ -10,7 +10,7 @@ def main(argc, argv):
     lora = Lora()
     network = Network()
     example1 = Example()
-    example2 = Example()
+    # example2 = Example()
     while True:
         try:
             sleep(1.0)
