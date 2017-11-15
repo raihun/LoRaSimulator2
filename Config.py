@@ -66,6 +66,18 @@ class Config:
             power = "13"
         return power
 
+    def getHost(self):
+        host = self.__config["Simulator"]["Host"]
+        if(host == ""):
+            host = "127.0.0.1"
+        return host
+
+    def getPort(self):
+        host = self.__config["Simulator"]["Port"]
+        if(host == ""):
+            host = "25561"
+        return host
+
     """ コンフィグファイル 読込 """
     def __readConfig(self):
         if(not exists(self.__filename)):
@@ -86,6 +98,11 @@ class Config:
             self.__config["LoRa"]["Panid"] = "0001"
             self.__config["LoRa"]["Ownid"] = "0001"
             self.__config["LoRa"]["Power"] = "13"  # Min:-4 to Max:13
+
+            # Simulator setting
+            self.__config["Simulator"] = {}
+            self.__config["Simulator"]["Host"] = "127.0.0.1"
+            self.__config["Simulator"]["Port"] = "25561"
 
             # Create config file
             self.__writeConfig()
