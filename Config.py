@@ -49,7 +49,7 @@ class Config:
         return channel
 
     def getPanid(self):
-        panid = self.__config["LoRa"]["Channel"]
+        panid = self.__config["LoRa"]["Panid"]
         if(panid == ""):
             panid = "0001"
         return panid
