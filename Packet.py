@@ -137,7 +137,7 @@ class Packet:
         self.setPanId(data[4:8])
         self.setDatalinkSrc(data[8:12])
         self.setNetworkDst(data[12:16])
-        self.setNetworkDst(data[16:20])
+        self.setNetworkSrc(data[16:20])
         margedData = int(data[20:22], 16)
         ptype, ttl = self.purgeByte(margedData)
         self.setPacketType(ptype)
