@@ -77,7 +77,7 @@ class Simulator:
                 (self.__config.getHost(), int(self.__config.getPort()))
             )
             params = "{0:02X}{1:02X}{2:02X}{3:02X}{4}{5}".format(
-                self.__bw, self.__sf, self.__ch, self._pwr, self.__panid, self.__ownid
+                self.__bw, self.__sf, self.__ch, self.__pwr, self.__panid, self.__ownid
             )
             self.sock.send(params.encode())
         except ConnectionRefusedError:  # 接続失敗
