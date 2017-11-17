@@ -5,7 +5,6 @@ import time
 from threading import Thread
 
 from Packet import Packet
-from Network import Network
 
 class Route:
     """
@@ -25,8 +24,6 @@ class Route:
     __routeList = []
 
     def __init__(self):
-        self.__network = Network()
-        self.__network.addRecvlistener(self.__putRoute)
         self.__packet = Packet()
 
         self.thCountAlive = Thread(target=self.__countDownAliveTime,)
@@ -71,7 +68,7 @@ class Route:
             return
 
 
-    def __putRoute(self, msg):
+    def putRoute(self, msg):
         """
             TODO 重複ルートのチェック機構(ルーティングテーブルから削除するため)
             送られてきたルーティングテーブルを自分のテーブルに追加する
@@ -107,6 +104,7 @@ class Route:
 
         self.__routeList.extend([[table[0:4], datalinkDst, 1 + int(
             table[4:6], 16), self.__ALIVE_TIME, rssi] for table in recvTables])
+        print(self.__routeList)
         return
 
 
@@ -130,4 +128,3 @@ class Route:
                     self.__routeList[i][self.__INDEX_HOP] = 255
                     continue
                 self.__routeList[i][self.__INDEX_ALIVE] = self.__routeList[i][self.__INDEX_ALIVE] - 1
-

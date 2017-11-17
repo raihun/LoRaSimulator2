@@ -2,7 +2,7 @@
 from Config import Config
 from Lora import Lora
 from Packet import Packet
-
+from Route import Route
 
 class Network(Lora):
     """
@@ -38,6 +38,10 @@ class Network(Lora):
         # Set Send/Recv variables
         global gRecvListeners
         gRecvListeners = []
+
+        # route
+        route = Route()
+        self.addRecvlistener(route.putRoute)
 
         # LoraのReceive Listenersに追加
         super(Network, self).addRecvlistener(self.recvEvent)
