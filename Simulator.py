@@ -85,6 +85,7 @@ class Simulator:
                 self.__bw, self.__sf, self.__ch, self.__pwr, self.__panid, self.__ownid
             )
             self.sock.send(params.encode())
+            print("[Simulator] Connect.")
         except ConnectionRefusedError:  # 接続失敗
             print("[Error] 接続失敗")
         return
