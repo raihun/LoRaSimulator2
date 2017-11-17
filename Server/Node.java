@@ -67,21 +67,65 @@ public class Node {
         return (sf + pwr) * 10;
     }
 
+    /* -------------------------------------------------- */
+    // 通信関係
+    /* -------------------------------------------------- */
+
+    // 受信排他制御
+    private Boolean sendLock = false;
+    private Boolean recvLock = false;
+    public void setLock(Boolean status) {
+        recvLock = status;
+    }
+    public Boolean getLock() {
+        return recvLock;
+    }
+
     // パケット送信
     public void sendPacket(String msg) {
-        // 初期設定
+        /* ------------------------------ */
+        // 設定パケット
+        /* ------------------------------ */
         if(panid.equals("0000")) {
             setParameter(msg);
             return;
         }
 
+        /* ------------------------------ */
         // 通常パケット
-        this.child.send("OK");
+        /* ------------------------------ */
+        // 電波状況
+        if(this.sendLock) {
+            this.child.send("NG 101");
+            return;
+        }
+        if(this.recvLock) {
+            this.child.send("NG 102");
+            return;
+        }
+
+        // 排他制御
         double range = this.getRange() / 2.0;
         ArrayList<Node> nodes = nc.getNodesByDistance(this, range);
+        ArrayList<Node> lockedNodes = new ArrayList<Node>();
         for(Node node : nodes) {
+            if(!node.getLock()) {
+                node.setLock(true);
+                lockedNodes.add(node);
+            }
+        }
+        this.sendLock = true;
+        try {
+            Thread.sleep(3000);
+        } catch(InterruptedException e){
+            e.printStackTrace();
+        }
+        for(Node node : lockedNodes) {
+            node.setLock(false);
             node.receivePacket(msg);
         }
+        this.sendLock = false;
+        this.child.send("OK");
         return;
     }
 
