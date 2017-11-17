@@ -86,7 +86,6 @@ public class Node {
                 result = (int)(0.6413 * Math.exp(0.5793 * sf));
                 break;
         }
-        System.out.println("Result=" + result);
         return result;
     }
 
@@ -177,8 +176,14 @@ public class Node {
             return;
         }
 
-        String payload = msg.substring(8, msg.length());
-        String newMsg = "FFC9" + panid + srcid + payload;
+        String newMsg;
+        if(msg.length() > 8) {
+            String payload = msg.substring(8, msg.length());
+            newMsg = new String("FFC9" + panid + srcid + payload);
+        } else {
+            newMsg = new String(msg);
+        }
+
         this.child.send(newMsg);
         return;
     }
