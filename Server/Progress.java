@@ -31,7 +31,7 @@ public class Progress extends Thread {
             }
 
             try {
-                Thread.sleep(1);
+                Thread.sleep(33); // 30fps
             } catch(InterruptedException e) {}
         }
     }
