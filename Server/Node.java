@@ -58,6 +58,10 @@ public class Node {
         return;
     }
 
+    public String getPanid() {
+        return panid;
+    }
+
     public String getOwnid() {
         return ownid;
     }
@@ -140,7 +144,7 @@ public class Node {
         }
         for(Node node : lockedNodes) {
             node.setRecvLock(false);
-            node.receivePacket(msg);
+            node.receivePacket(msg, getPanid(), getOwnid());
         }
         setSendLock(false);
         this.child.send("OK");
@@ -148,12 +152,15 @@ public class Node {
     }
 
     // パケット受信
-    public void receivePacket(String msg) {
+    public void receivePacket(String msg, String panid, String srcid) {
         if(getFailed()) {
             setFailed(false);
             return;
         }
-        this.child.send(msg);
+
+        String payload = msg.substring(8, msg.length());
+        String newMsg = "FFC9" + panid + srcid + payload;
+        this.child.send(newMsg);
         return;
     }
 }
