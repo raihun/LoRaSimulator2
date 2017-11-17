@@ -26,6 +26,8 @@ class Simulator:
             return 0
         try:
             self.recvmsg = self.sock.recv(4096).decode().strip()
+        except AttributeError:  # 接続よりも先に呼び出した場合
+            return 0
         except ConnectionResetError:  # サーバ側からの切断
             self.sock.close()
         except OSError:  # サーバダウン
@@ -69,6 +71,7 @@ class Simulator:
 
     def __modeStart(self, data):
         print("[Simulator-Send] {0}".format(data))
+        # TODO 送信データ長異常 処理
         self.sock.send(data.encode())
         return
 
