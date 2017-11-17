@@ -58,6 +58,8 @@ class Simulator:
             self.__panid = str(m)
         if(c is "f"):  # ownid
             self.__ownid = str(m)
+        if(c is "u"):
+            self.__pwr = int(m)
         if(c is "z"):
             self.__isStart = True
             self.__connect()
@@ -74,8 +76,8 @@ class Simulator:
             self.sock.connect(
                 (self.__config.getHost(), int(self.__config.getPort()))
             )
-            params = "{0:02X}{1:02X}{2:02X}{3}{4}".format(
-                self.__bw, self.__sf, self.__ch, self.__panid, self.__ownid
+            params = "{0:02X}{1:02X}{2:02X}{3:02X}{4}{5}".format(
+                self.__bw, self.__sf, self.__ch, self._pwr, self.__panid, self.__ownid
             )
             self.sock.send(params.encode())
         except ConnectionRefusedError:  # 接続失敗
