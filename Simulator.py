@@ -38,7 +38,9 @@ class Simulator:
         return len(self.recvmsg)
 
     def readline(self):
-        return self.recvmsg.encode()
+        msg = self.recvmsg.encode()
+        print("[Simulator-Recv] {0}".format(msg))
+        return msg
 
     def __modeConfig(self, data):
         # Split command
