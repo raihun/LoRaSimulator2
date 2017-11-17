@@ -70,6 +70,25 @@ public class Node {
     public int getRange() {
         return (sf + pwr) * 10;
     }
+    public int getSpeed() {
+        int result = 1000;
+        switch(bw) {
+            case 3:
+                result = (int)(5.2116 * Math.exp(0.5778 * sf));
+                break;
+            case 4:
+                result = (int)(2.6071 * Math.exp(0.5778 * sf));
+                break;
+            case 5:
+                result = (int)(1.2986 * Math.exp(0.5781 * sf));
+                break;
+            case 6:
+                result = (int)(0.6413 * Math.exp(0.5793 * sf));
+                break;
+        }
+        System.out.println("Result=" + result);
+        return result;
+    }
 
     /* -------------------------------------------------- */
     // 通信関係
@@ -138,7 +157,7 @@ public class Node {
         }
         setSendLock(true);
         try {
-            Thread.sleep(3000);
+            Thread.sleep(getSpeed());
         } catch(InterruptedException e){
             e.printStackTrace();
         }
