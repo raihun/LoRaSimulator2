@@ -11,7 +11,7 @@ class Network(Lora):
     """
     def __init__(self):
         super(Network, self).__init__()
-        self.config = Config()
+        self.__config = Config()
         self.__setting()
         return
 
@@ -49,7 +49,10 @@ class Network(Lora):
         packet.importPacket(msg)
 
         # 自分宛てではない場合
-        # hoge
+        ownid = self.__config.getOwnid()
+
+        #  転送
+        # super(Network, self).send(packet.exportPacket())
 
         # メッセージ転送
         global gRecvListeners
