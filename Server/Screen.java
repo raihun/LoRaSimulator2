@@ -311,3 +311,19 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     public void mouseEntered( MouseEvent e ) {}
     public void mouseExited( MouseEvent e ) {}
 }
+
+/*
+    Map表示する際に必要なコード
+    import java.awt.image.BufferedImage;
+    import java.io.*;
+    import javax.imageio.*;
+
+    BufferedImage image = null;
+	try
+	{
+        image = ImageIO.read(new File("map.png"));
+    } catch (Exception e) {
+        e.printStackTrace();
+	}
+    buffer.drawImage(image, 0, 0, this);
+*/
