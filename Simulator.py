@@ -53,7 +53,7 @@ class Simulator:
         if(c is "c"):  # sf
             self.__sf = int(m)
         if(c is "d"):  # channel
-            self.__channel = int(m)
+            self.__ch = int(m)
         if(c is "e"):  # panid
             self.__panid = str(m)
         if(c is "f"):  # ownid
@@ -64,7 +64,7 @@ class Simulator:
         return
 
     def __modeStart(self, data):
-        print("[Run] {0}".format(data))
+        print("[Simulator-Send] {0}".format(data))
         self.sock.send(data.encode())
         return
 
@@ -75,7 +75,7 @@ class Simulator:
                 (self.__config.getHost(), int(self.__config.getPort()))
             )
             params = "{0:02X}{1:02X}{2:02X}{3}{4}".format(
-                self.__bw, self.__sf, self.__channel, self.__panid, self.__ownid
+                self.__bw, self.__sf, self.__ch, self.__panid, self.__ownid
             )
             self.sock.send(params.encode())
         except ConnectionRefusedError:  # 接続失敗
