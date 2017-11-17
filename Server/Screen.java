@@ -11,6 +11,11 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     private static NodeController nc = null;
     private JPanel pPaint;
     private JButton btnStart;
+    private JButton btnRange;
+    private JButton btnLine;
+    private JButton btnAddPoint;
+    private JButton btnRemovePoint;
+    private JButton btnMove;
     private JTextField tfCommand;
 
     public Screen() {
@@ -43,29 +48,39 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
 
         // 右上パネル2
         JPanel pControl = new JPanel();
-        pControl.setBounds( 1005, 50, 265, 40 );
-        pControl.setLayout( new GridLayout(2, 2) );
+        pControl.setBounds( 1005, 50, 265, 60 );
+        pControl.setLayout( new GridLayout(3, 2) );
         pControl.setBackground( new Color(175, 220, 220) );
 
-        JButton btnRange = new JButton("Range");
+        btnRange = new JButton("Range");
         btnRange.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnRange.setForeground(Color.RED);
         btnRange.addActionListener( this );
         pControl.add( btnRange );
 
-        JButton btnLine = new JButton("Line");
+        btnLine = new JButton("Line");
         btnLine.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnLine.setForeground(Color.RED);
         btnLine.addActionListener( this );
         pControl.add( btnLine );
 
-        JButton btnNodeRoute = new JButton("---");
-        btnNodeRoute.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
-        btnNodeRoute.addActionListener( this );
-        pControl.add( btnNodeRoute );
+        btnAddPoint = new JButton("AddPoint");
+        btnAddPoint.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnAddPoint.setForeground(Color.BLACK);
+        btnAddPoint.addActionListener( this );
+        pControl.add( btnAddPoint );
 
-        JButton btnNodeRequest = new JButton("---");
-        btnNodeRequest.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
-        btnNodeRequest.addActionListener( this );
-        pControl.add( btnNodeRequest );
+        btnRemovePoint = new JButton("RemovePoint");
+        btnRemovePoint.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnRemovePoint.setForeground(Color.BLACK);
+        btnRemovePoint.addActionListener( this );
+        pControl.add( btnRemovePoint );
+
+        btnMove = new JButton("Move");
+        btnMove.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnMove.setForeground(Color.BLACK);
+        btnMove.addActionListener( this );
+        pControl.add( btnMove );
 
         this.add(pControl);
 
@@ -120,8 +135,25 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         ArrayList<Node> nodeList = nc.getNodes();
         try {
             for(Node node : nodeList) {
+                // ノード移動
+                if(enableMove) {
+                    node.moveNextPosition();
+                }
+            }
+            for(Node node : nodeList) {
                 int[] pos = node.getPosition();
+                int[] nextPos = node.getNextPosition();
                 int r = node.getRange();
+
+                ArrayList<Integer> nextX = node.getWaypointsX();
+                ArrayList<Integer> nextY = node.getWaypointsY();
+                if(enableAddPoint || enableRemovePoint) {
+                    for(int i = 0; i < nextX.size(); i++) {
+                        buffer.setColor( Color.red );
+                        buffer.fillRect(nextX.get(i)-1, nextY.get(i)-1, 2, 2);
+                        buffer.drawString("" + (i + 1), nextX.get(i)-3, nextY.get(i)+15);
+                    }
+                }
 
                 // ノード描画
                 buffer.setColor( Color.black );
@@ -173,8 +205,11 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         } catch(Exception e) {}
     }
 
-    Boolean enableRange = true;
-    Boolean enableLine = true;
+    private Boolean enableRange = true;
+    private Boolean enableLine = true;
+    private Boolean enableAddPoint = false;
+    private Boolean enableRemovePoint = false;
+    private Boolean enableMove = false;
     public void actionPerformed( ActionEvent ae ) {
         String buttonName = ae.getActionCommand();
         switch(buttonName) {
@@ -184,10 +219,46 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 break;
             case "Range":
                 enableRange = !enableRange;
+                if(enableRange) {
+                    btnRange.setForeground(Color.RED);
+                } else {
+                    btnRange.setForeground(Color.BLACK);
+                }
                 break;
             case "Line":
                 enableLine = !enableLine;
+                if(enableLine) {
+                    btnLine.setForeground(Color.RED);
+                } else {
+                    btnLine.setForeground(Color.BLACK);
+                }
                 break;
+            case "AddPoint":
+                enableAddPoint = !enableAddPoint;
+                if(enableAddPoint) {
+                    btnAddPoint.setForeground(Color.RED);
+                } else {
+                    btnAddPoint.setForeground(Color.BLACK);
+                }
+                break;
+            case "RemovePoint":
+                enableRemovePoint = !enableRemovePoint;
+                if(enableRemovePoint) {
+                    btnRemovePoint.setForeground(Color.RED);
+                } else {
+                    btnRemovePoint.setForeground(Color.BLACK);
+                }
+                break;
+            case "Move":
+                enableMove = !enableMove;
+                if(enableMove) {
+                    btnMove.setForeground(Color.RED);
+                } else {
+                    btnMove.setForeground(Color.BLACK);
+                }
+                break;
+
+            // 右下メニュー
             case "Send":
                 if(selectNode == null) break;
                 selectNode.sendPacket(tfCommand.getText());
@@ -203,6 +274,16 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     Node dragNode = null;
     public void mousePressed( MouseEvent e ) {
         e.consume();
+        // ノード移動先
+        if(selectNode != null && enableAddPoint) {
+            selectNode.addNextPosition(e.getX(), e.getY());
+        }
+
+        // ノード削除
+        if(enableRemovePoint) {
+            selectNode.removeWaypoint(e.getX(), e.getY());
+        }
+
         ArrayList<Node> nodes = nc.getNodesByPosition(e.getX(), e.getY(), 10.0);
         if(nodes.size() <= 0) {
             return;

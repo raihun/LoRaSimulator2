@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -37,7 +38,10 @@ public class Node {
         nc.removeNode(x, y);
     }
 
+    /* -------------------------------------------------- */
     // 座標
+    /* -------------------------------------------------- */
+    // 通常座標
     public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
@@ -47,7 +51,70 @@ public class Node {
         return position;
     }
 
-    // 各種設定
+    // 移動用
+    private ArrayList<Integer> waypointX = new ArrayList<Integer>();
+    private ArrayList<Integer> waypointY = new ArrayList<Integer>();
+
+    public void addNextPosition(int x, int y) {
+        this.waypointX.add(x);
+        this.waypointY.add(y);
+    }
+
+    public int[] getNextPosition() {
+        int[] nextPosition = new int[2];
+        if(waypointX.size() > 0) {
+            nextPosition[0] = waypointX.get(0);
+            nextPosition[1] = waypointY.get(0);
+        } else {
+            nextPosition[0] = x;
+            nextPosition[1] = y;
+        }
+        return nextPosition;
+    }
+
+    public ArrayList<Integer> getWaypointsX() {
+        return waypointX;
+    }
+
+    public ArrayList<Integer> getWaypointsY() {
+        return waypointY;
+    }
+
+    public void removeWaypoint(int x, int y) {
+        double distance;
+        for(int i = 0; i < waypointX.size(); i++) {
+            distance = Math.sqrt(Math.pow(waypointX.get(i) - x, 2) + Math.pow(waypointY.get(i) - y, 2));
+            if(distance < 10.0) {
+                waypointX.remove(i);
+                waypointY.remove(i);
+            }
+        }
+
+    }
+
+    private int cnt = 0;
+    public void moveNextPosition() {
+        int pos[] = getNextPosition();
+        double _x = (pos[0] - x) / 10;
+        double _y = (pos[1] - y) / 10;
+        x += (int)_x;
+        y += (int)_y;
+
+        // 接近すると次のウェイポイントへ
+        double distance = Math.sqrt(Math.pow(pos[0] - x, 2) + Math.pow(pos[1] - y, 2));
+        if(distance < 15.0) {
+            if(waypointX.size() > 0) {
+                waypointX.add(pos[0]);
+                waypointY.add(pos[1]);
+                waypointX.remove(0);
+                waypointY.remove(0);
+            }
+        }
+    }
+
+    /* -------------------------------------------------- */
+    // LoRaパラメータ
+    /* -------------------------------------------------- */
     public void setParameter(String msg) {
         bw = Integer.parseInt(msg.substring(0, 2), 16);
         sf = Integer.parseInt(msg.substring(2, 4), 16);
