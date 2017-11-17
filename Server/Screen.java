@@ -115,7 +115,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                     buffer.setColor( Color.red );
                 }
 
-                buffer.drawRect(pos[0]-3, pos[1]-3, 6, 6);
+                buffer.fillRect(pos[0]-3, pos[1]-3, 6, 6);
 
                 // 通信距離描画
                 buffer.setColor( Color.black );
