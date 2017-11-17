@@ -102,6 +102,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         try {
             for(Node node : nodeList) {
                 int[] pos = node.getPosition();
+                int r = node.getRange();
 
                 // ノード描画
                 buffer.setColor( Color.black );
@@ -119,7 +120,6 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
 
                 // 通信距離描画
                 buffer.setColor( Color.black );
-                int r = node.getRange();
                 if(enableRange) {
                     buffer.drawOval(pos[0]-r/2, pos[1]-r/2, r, r);
                 }
@@ -149,8 +149,8 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         } catch(Exception e) {}
     }
 
-    Boolean enableRange = false;
-    Boolean enableLine = false;
+    Boolean enableRange = true;
+    Boolean enableLine = true;
     public void actionPerformed( ActionEvent ae ) {
         String buttonName = ae.getActionCommand();
         switch(buttonName) {
