@@ -150,7 +150,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     Node selectedNode = null;
     public void mousePressed( MouseEvent e ) {
         e.consume();
-        ArrayList<Node> nodes = nc.getNodesByPosition(e.getX(), e.getY(), 5.0);
+        ArrayList<Node> nodes = nc.getNodesByPosition(e.getX(), e.getY(), 10.0);
         if(nodes.size() <= 0) {
             return;
         }
