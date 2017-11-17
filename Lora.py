@@ -148,7 +148,7 @@ class Lora:
                 continue
 
             # ロック解除
-            if(line == "OK"):
+            if(line == "OK" or line.find("NG") >= 0):
                 Lora.__isLock = False
 
             # フィルタリング
