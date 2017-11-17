@@ -74,11 +74,24 @@ public class Node {
     // 受信排他制御
     private Boolean sendLock = false;
     private Boolean recvLock = false;
-    public void setLock(Boolean status) {
+    private Boolean failed = false;
+    public void setSendLock(Boolean status) {
+        sendLock = status;
+    }
+    public Boolean getSendLock() {
+        return sendLock;
+    }
+    public void setRecvLock(Boolean status) {
         recvLock = status;
     }
-    public Boolean getLock() {
+    public Boolean getRecvLock() {
         return recvLock;
+    }
+    public void setFailed(Boolean status) {
+        failed = status;
+    }
+    public Boolean getFailed() {
+        return failed;
     }
 
     // パケット送信
@@ -94,43 +107,52 @@ public class Node {
         /* ------------------------------ */
         // 通常パケット
         /* ------------------------------ */
+        double range = this.getRange() / 2.0;
+        ArrayList<Node> nodes = nc.getNodesByDistance(this, range);
+
         // 電波状況
-        if(this.sendLock) {
+        if(getSendLock()) {
+            // 送信異常(送信中の送信要求)
             this.child.send("NG 101");
             return;
         }
-        if(this.recvLock) {
+        if(getRecvLock()) {
+            // 送信異常(キャリアセンス検出)
             this.child.send("NG 102");
             return;
         }
 
         // 排他制御
-        double range = this.getRange() / 2.0;
-        ArrayList<Node> nodes = nc.getNodesByDistance(this, range);
         ArrayList<Node> lockedNodes = new ArrayList<Node>();
         for(Node node : nodes) {
-            if(!node.getLock()) {
-                node.setLock(true);
+            if(node.getRecvLock()) {
+                node.setFailed(true);
+            } else {
+                node.setRecvLock(true);
                 lockedNodes.add(node);
             }
         }
-        this.sendLock = true;
+        setSendLock(true);
         try {
             Thread.sleep(3000);
         } catch(InterruptedException e){
             e.printStackTrace();
         }
         for(Node node : lockedNodes) {
-            node.setLock(false);
+            node.setRecvLock(false);
             node.receivePacket(msg);
         }
-        this.sendLock = false;
+        setSendLock(false);
         this.child.send("OK");
         return;
     }
 
     // パケット受信
     public void receivePacket(String msg) {
+        if(getFailed()) {
+            setFailed(false);
+            return;
+        }
         this.child.send(msg);
         return;
     }

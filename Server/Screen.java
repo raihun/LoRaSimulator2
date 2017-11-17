@@ -85,6 +85,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         this.progress = progress;
     }
 
+    private int cnt = 0;
     public void render() {
         Image back = createImage(1000, 720);
         Graphics buffer = back.getGraphics();
@@ -93,6 +94,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         buffer.setColor( Color.black );
         renderNodes(buffer);
         getGraphics().drawImage(back, 0, 0, this);
+        cnt = (cnt + 5) % Integer.MAX_VALUE;
     }
 
     private void renderNodes(Graphics buffer) {
@@ -103,46 +105,64 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
 
                 // ノード描画
                 buffer.setColor( Color.black );
-                buffer.drawRect(pos[0]-2, pos[1]-2, 4, 4);
+                if(node.getSendLock()) {
+                    buffer.setColor( Color.orange );
+                }
+                if(node.getRecvLock()) {
+                    buffer.setColor( Color.blue );
+                }
+                if(node.getFailed()) {
+                    buffer.setColor( Color.red );
+                }
+
+                buffer.drawRect(pos[0]-3, pos[1]-3, 6, 6);
 
                 // 通信距離描画
+                buffer.setColor( Color.black );
                 int r = node.getRange();
                 if(enableRange) {
                     buffer.drawOval(pos[0]-r/2, pos[1]-r/2, r, r);
                 }
-                /*
+
                 // 電波描画
-                if(node.isOperation()) {
-                    int cnt = node.getCount();
-                    buffer.drawOval(pos[0]-cnt/2, pos[1]-cnt/2, cnt, cnt);
+                if(node.getSendLock()) {
+                    int buf = cnt % r;
+                    buffer.drawOval(pos[0]-buf/2, pos[1]-buf/2, buf, buf);
                 }
 
                 // 線描画
-                for(Node _node : nodeList) {
-                    if(node == _node) continue;
-                    if(nc.getDistance(node, _node) <= 100.0) {
-                        int[] _pos = _node.getPosition();
-                        buffer.drawLine(pos[0], pos[1], _pos[0], _pos[1]);
+                if(enableLine) {
+                    for(Node _node : nodeList) {
+                        if(node == _node) continue;
+                        int _r = node.getRange();
+                        double minRange = Math.min(r/2.0, _r/2.0);
+                        if(nc.getDistance(node, _node) <= minRange) {
+                            int[] _pos = _node.getPosition();
+                            buffer.drawLine(pos[0], pos[1], _pos[0], _pos[1]);
+                        }
                     }
                 }
-                */
 
                 // ノード名
-                buffer.drawString(node.getOwnid(), pos[0]-10, pos[1]+20);
-                // 終了
+                buffer.drawString(node.getOwnid(), pos[0]-15, pos[1]+20);
             }
         } catch(Exception e) {}
     }
 
     Boolean enableRange = false;
+    Boolean enableLine = false;
     public void actionPerformed( ActionEvent ae ) {
         String buttonName = ae.getActionCommand();
         switch(buttonName) {
             case "Start":
                 progress.start();
+                btnStart.setEnabled(false);
                 break;
             case "Range":
                 enableRange = !enableRange;
+                break;
+            case "Line":
+                enableLine = !enableLine;
                 break;
         }
     }
