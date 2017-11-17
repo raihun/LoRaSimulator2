@@ -94,7 +94,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         buffer.setColor( Color.black );
         renderNodes(buffer);
         getGraphics().drawImage(back, 0, 0, this);
-        cnt = (cnt + 5) % Integer.MAX_VALUE;
+        cnt = (cnt + 25) % Integer.MAX_VALUE;
     }
 
     private void renderNodes(Graphics buffer) {
