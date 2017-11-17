@@ -136,7 +136,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         try {
             for(Node node : nodeList) {
                 // ノード移動
-                if(enableMove) {
+                if(enableMove && node.getWaypointSize() > 0) {
                     node.moveNextPosition();
                 }
             }

@@ -62,7 +62,7 @@ public class Node {
 
     public int[] getNextPosition() {
         int[] nextPosition = new int[2];
-        if(waypointX.size() > 0) {
+        if(getWaypointSize() > 0) {
             nextPosition[0] = waypointX.get(0);
             nextPosition[1] = waypointY.get(0);
         } else {
@@ -80,16 +80,19 @@ public class Node {
         return waypointY;
     }
 
+    public int getWaypointSize() {
+        return waypointX.size();
+    }
+
     public void removeWaypoint(int x, int y) {
         double distance;
-        for(int i = 0; i < waypointX.size(); i++) {
+        for(int i = 0; i < getWaypointSize(); i++) {
             distance = Math.sqrt(Math.pow(waypointX.get(i) - x, 2) + Math.pow(waypointY.get(i) - y, 2));
             if(distance < 10.0) {
                 waypointX.remove(i);
                 waypointY.remove(i);
             }
         }
-
     }
 
     private int cnt = 0;
