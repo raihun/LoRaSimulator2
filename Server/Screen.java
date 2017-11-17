@@ -11,6 +11,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     private static NodeController nc = null;
     private JPanel pPaint;
     private JButton btnStart;
+    private JTextField tfCommand;
 
     public Screen() {
         setLayout(null);
@@ -46,15 +47,15 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pControl.setLayout( new GridLayout(2, 2) );
         pControl.setBackground( new Color(175, 220, 220) );
 
-        JButton btnNodeAdd = new JButton("Range");
-        btnNodeAdd.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
-        btnNodeAdd.addActionListener( this );
-        pControl.add( btnNodeAdd );
+        JButton btnRange = new JButton("Range");
+        btnRange.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnRange.addActionListener( this );
+        pControl.add( btnRange );
 
-        JButton btnNodeRemove = new JButton("Line");
-        btnNodeRemove.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
-        btnNodeRemove.addActionListener( this );
-        pControl.add( btnNodeRemove );
+        JButton btnLine = new JButton("Line");
+        btnLine.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnLine.addActionListener( this );
+        pControl.add( btnLine );
 
         JButton btnNodeRoute = new JButton("---");
         btnNodeRoute.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
@@ -69,12 +70,30 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         this.add(pControl);
 
         // 右下パネル
-        JPanel pPacket = new JPanel();
-        pPacket.setBounds( 1005, 500, 265, 40);
-        pPacket.setLayout( new GridLayout(1, 1) );
-        pPacket.setBackground( new Color(175, 220, 220) );
+        JPanel pCommand = new JPanel();
+        pCommand.setBounds( 1005, 610, 265, 80);
+        pCommand.setLayout( new GridLayout(2, 1) );
+        pCommand.setBackground( new Color(175, 220, 220) );
 
-        this.add(pPacket);
+        tfCommand = new JTextField();
+        pCommand.add( tfCommand );
+
+        JPanel pCommandChild = new JPanel();
+        pCommandChild.setLayout( new GridLayout(1, 2) );
+        pCommandChild.setBackground( new Color(175, 220, 220) );
+
+        JButton btnSend = new JButton("Send");
+        btnSend.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnSend.addActionListener( this );
+        pCommandChild.add( btnSend );
+
+        JButton btnRecv = new JButton("Recv");
+        btnRecv.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnRecv.addActionListener( this );
+        pCommandChild.add( btnRecv );
+
+        pCommand.add( pCommandChild );
+        this.add(pCommand);
     }
 
     // インスタンス
@@ -168,6 +187,14 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 break;
             case "Line":
                 enableLine = !enableLine;
+                break;
+            case "Send":
+                if(selectNode == null) break;
+                selectNode.sendPacket(tfCommand.getText());
+                break;
+            case "Recv":
+                if(selectNode == null) break;
+                selectNode.receivePacket(tfCommand.getText(), selectNode.getPanid(), selectNode.getOwnid());
                 break;
         }
     }
