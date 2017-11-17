@@ -115,8 +115,13 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 if(node.getFailed()) {
                     buffer.setColor( Color.red );
                 }
-
                 buffer.fillRect(pos[0]-3, pos[1]-3, 6, 6);
+
+                // ノード選択
+                buffer.setColor( Color.gray );
+                if(selectNode == node) {
+                    buffer.drawOval(pos[0]-10, pos[1]-10, 20, 20);
+                }
 
                 // 通信距離描画
                 buffer.setColor( Color.black );
@@ -167,7 +172,8 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         }
     }
 
-    Node selectedNode = null;
+    Node selectNode = null;
+    Node dragNode = null;
     public void mousePressed( MouseEvent e ) {
         e.consume();
         ArrayList<Node> nodes = nc.getNodesByPosition(e.getX(), e.getY(), 10.0);
@@ -175,17 +181,24 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
             return;
         }
         Node node = nodes.get(0);
-        selectedNode = node;
+        dragNode = node;
+
+        // ノード選択
+        if(selectNode != node) {
+            selectNode = node;
+        } else {
+            selectNode = null;
+        }
     }
     public void mouseDragged( MouseEvent e ) {
-        if(selectedNode != null) {
-            selectedNode.setPosition(e.getX(), e.getY());
+        if(dragNode != null) {
+            dragNode.setPosition(e.getX(), e.getY());
         }
     }
     public void mouseClicked( MouseEvent e ) {}
     public void mouseMoved( MouseEvent e ) {}
     public void mouseReleased( MouseEvent e ) {
-        selectedNode = null;
+        dragNode = null;
     }
     public void mouseEntered( MouseEvent e ) {}
     public void mouseExited( MouseEvent e ) {}
