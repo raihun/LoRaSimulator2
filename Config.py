@@ -33,7 +33,7 @@ class Config:
     def getBandwidth(self):
         bandwidth = self.__config["LoRa"]["Bandwidth"]
         if(bandwidth == ""):
-            bandwidth = "4"
+            bandwidth = "4" # 3, 4, 5, 6
         return bandwidth
 
     def getSpreadingfactor(self):
@@ -92,7 +92,7 @@ class Config:
 
             # LoRa setting
             self.__config["LoRa"] = {}
-            self.__config["LoRa"]["Bandwidth"] = "4"  # 4:125kHz
+            self.__config["LoRa"]["Bandwidth"] = "4"  # 3, 4:125kHz, 5, 6
             self.__config["LoRa"]["Spreadingfactor"] = "7"  # 7-12
             self.__config["LoRa"]["Channel"] = "1"
             self.__config["LoRa"]["Panid"] = "0001"
