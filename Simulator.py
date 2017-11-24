@@ -71,7 +71,6 @@ class Simulator:
 
     def __modeStart(self, data):
         print("[Simulator-Send] {0}".format(data))
-        # TODO 送信データ長異常 処理
         self.sock.send(data.encode())
         return
 

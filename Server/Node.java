@@ -213,10 +213,14 @@ public class Node {
         }
 
         /* ------------------------------ */
-        // 通常パケット
+        // 通常パケット(エラーチェック)
         /* ------------------------------ */
-        double range = this.getRange() / 2.0;
-        ArrayList<Node> nodes = nc.getNodesByDistance(this, range);
+
+        // 送信長チェック
+        if(msg.length() <= 8 || 58 < msg.length()) {
+            this.child.send("NG 100");
+            return;
+        }
 
         // 電波状況
         if(getSendLock()) {
@@ -229,6 +233,12 @@ public class Node {
             this.child.send("NG 102");
             return;
         }
+
+        /* ------------------------------ */
+        // 通常パケット
+        /* ------------------------------ */
+        double range = this.getRange() / 2.0;
+        ArrayList<Node> nodes = nc.getNodesByDistance(this, range);
 
         // 排他制御
         ArrayList<Node> lockedNodes = new ArrayList<Node>();
@@ -271,7 +281,9 @@ public class Node {
         String _panid = null;
         String _dstid = null;
         String _payload = null;
+        
         if(msg.length() > 8) {
+            // (8Byteを超えるパケットは、フォーマットに従っていると仮定)
             _panid = msg.substring(0, 4);
             _dstid = msg.substring(4, 8);
             _payload = msg.substring(8, msg.length());
