@@ -1,10 +1,10 @@
 # -*- encoding:utf-8 -*-
 
-import re
-import time
-from threading import Thread
-
+from Config import Config
 from Packet import Packet
+import re
+from time import sleep
+from threading import Thread
 
 class Route:
     """
@@ -24,6 +24,7 @@ class Route:
     __routeList = []
 
     def __init__(self):
+        self.__config = Config()
         self.__packet = Packet()
 
         self.thCountAlive = Thread(target=self.__countDownAliveTime,)
@@ -84,8 +85,14 @@ class Route:
             self.__resetAliveTime(datalinkDst)
             return
 
-        recvTables = [payload[i * 6:i * 6 + 6]
+        _recvTables = [payload[i * 6:i * 6 + 6]
                       for i in range(int(len(payload) / 6))]
+
+        # ネットワーク層宛先IDが自分宛ての場合、不要な情報のため除外する
+        recvTables = []
+        for i in range(len(_recvTables)):
+            if(_recvTables[i][:4] != self.__config.getOwnid()):
+                recvTables.append(_recvTables[i])
 
         for i in range(len(self.__routeList)):
             for table in recvTables:
@@ -107,6 +114,41 @@ class Route:
         print(self.__routeList)
         return
 
+    def getRoute(self, resultType = False):
+        # ネットワーク層宛先, 最短Hopのリスト作成
+        resultTables = []
+        for i in range(len(self.__routeList)):
+            # routeListより必要パラメータ取得
+            nwDst = self.__routeList[i][self.__INDEX_NWDST]
+            hop = self.__routeList[i][self.__INDEX_HOP]
+            rssi = self.__routeList[i][self.__INDEX_RSSI]
+
+            # 重複確認を行いつつ、最適のresultTablesを作成
+            findFlag = False
+            for j in range(len(resultTables)):
+                # HOP数が同じ場合、RSSI値によって判断
+                if(resultTables[j][0] is nwDst and resultTables[j][1] == hop):
+                    if(resultTables[j][2] < rssi):
+                        resultTables[j][1] = hop
+                        findFlag = True
+                # HOP数が少ない場合、上書き
+                elif(resultTables[j][0] is nwDst and resultTables[j][1] > hop):
+                    resultTables[j][1] = hop
+                    findFlag = True
+                # HOP数が多い場合でも、フラグを立ててresultTablesへの追加を防ぐ
+                elif(resultTables[j][0] is nwDst and resultTables[j][1] < hop):
+                    findFlag = True
+            if(not findFlag):
+                resultTables.append([nwDst, hop, rssi])
+
+        if(not resultType):
+            return resultTables
+
+        # payload部作成
+        payload = ""
+        for i in range(len(resultTables)):
+            payload += "{0}{1:02X}".format(resultTables[i][0], resultTables[i][1])
+        return payload
 
     def __resetAliveTime(self, datalinkDst):
         """ 通常パケットが届いたときに，aliveTimeを更新する """
@@ -122,7 +164,7 @@ class Route:
             60から0までデクリメントし，0になるとそのルーティングのホップ数を最大の255にセットする
         """
         while True:
-            time.sleep(1)
+            sleep(1)
             for i in range(len(self.__routeList)):
                 if self.__routeList[i][self.__INDEX_ALIVE] <= 0:
                     self.__routeList[i][self.__INDEX_HOP] = 255

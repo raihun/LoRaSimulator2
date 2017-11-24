@@ -68,7 +68,12 @@ class Network(Lora):
         # broadcast Thread
         self.__thBroadcast = Thread(
             target=self.__broadcastThread,
-            args=(None, self.send)
+            args=(
+                None,
+                self.send,
+                self.route,
+                self.__config.getOwnid()
+            )
         )
         self.__thBroadcast.setDaemon(True)
         self.__thBroadcast.start()
@@ -96,9 +101,12 @@ class Network(Lora):
 
     """ ルートリクエスト(10秒間隔) """
     @staticmethod
-    def __broadcastThread(self, sendMethod):
+    def __broadcastThread(self, sendMethod, routeInst, ownid):
         while True:
-            sendMethod("0001FFFFOK", "FFFF", 4)
-            r = randrange(10, 20)
+            r = randrange(100, 200) / 10.0
             sleep(r)
+
+            payload = "{0}00".format(ownid)
+            payload += routeInst.getRoute(True)
+            sendMethod(payload, "FFFF", 4)
         return
