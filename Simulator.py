@@ -38,7 +38,7 @@ class Simulator:
         except ConnectionResetError:  # サーバ側からの切断
             self.sock.close()
         except OSError:  # サーバダウン
-            print("[Error] サーバダウン")
+            print("[Simulator] 切断")
             self.sock.close()
             sys.exit()
 
@@ -93,7 +93,7 @@ class Simulator:
                 self.__bw, self.__sf, self.__ch, self.__pwr, self.__panid, self.__ownid
             )
             self.sock.send(params.encode())
-            print("[Simulator] Connect.")
+            print("[Simulator] 接続完了")
         except ConnectionRefusedError:  # 接続失敗
-            print("[Error] 接続失敗")
+            print("[Simulator] 接続失敗")
         return
