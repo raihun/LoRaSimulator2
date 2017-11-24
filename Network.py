@@ -60,7 +60,8 @@ class Network(Lora):
 
         # Route
         self.route = Route()
-        super(Network, self).addRecvlistener(self.route.putRoute)
+        # super(Network, self).addRecvlistener(self.route.putRoute)
+        self.__packetBuffer = []
 
         # LoraのReceive Listenersに追加
         super(Network, self).addRecvlistener(self.recvEvent)
@@ -79,24 +80,56 @@ class Network(Lora):
         self.__thBroadcast.start()
         return
 
-    """ Loraのから来るメッセージの2次フィルタリング """
+    """ Loraから来るメッセージの2次フィルタリング """
     def recvEvent(self, msg):
         # 受信パケット
         packet = Packet()
         packet.importPacket(msg)
 
         # NW層自分宛て ではない場合
-        ownid = self.__config.getOwnid()
-        if(ownid is not packet.getNetworkDst()):
-            return
-
+        # ownid = self.__config.getOwnid()
+        # if(ownid is not packet.getNetworkDst()):
+        #    return
         #  転送
         # super(Network, self).send(packet.exportPacket())
+
+        """
+            パケット結合部
+        """
+        # packetBuffer追加
+        bufferId = "{0}{1}".format( packet.getNetworkDst(), packet.getNetworkSrc() )
+        findBuffer = False
+        for i in range(len(self.__packetBuffer)):
+            if(bufferId == self.__packetBuffer[i][0]):
+                self.__packetBuffer[i][1] += packet.getPayload()
+                findBuffer = True
+                break
+        if(not findBuffer):
+            self.__packetBuffer.append([bufferId, packet.getPayload()])
+
+        # packetTypeチェック (FINの場合、メッセージ転送へ)
+        if(packet.getPacketType() != 2 and packet.getPacketType() != 6):
+            return
+
+        # パケット結合
+        payloadBuffer = ""
+        for i in range(len(self.__packetBuffer)):
+            if(bufferId == self.__packetBuffer[i][0]):
+                payloadBuffer = self.__packetBuffer[i][1]
+                self.__packetBuffer.pop(i)
+                break
+        newMsg = msg[:24] + payloadBuffer
+
+        """
+            メッセージ転送
+        """
+        # Routeへ転送
+        self.route.putRoute(newMsg)
 
         # メッセージ転送
         global gRecvListeners
         for recvEvent in gRecvListeners:
-            recvEvent(msg)
+            recvEvent(newMsg)
         return
 
     """ ルートリクエスト(10秒間隔) """
