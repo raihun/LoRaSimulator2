@@ -78,6 +78,12 @@ class Config:
             host = "25561"
         return host
 
+    def getSimulatorDebug(self):
+        debug = self.__config["Simulator"]["Debug"]
+        if(debug == ""):
+            debug = "false"
+        return debug
+
     """ コンフィグファイル 読込 """
     def __readConfig(self):
         if(not exists(self.__filename)):
@@ -103,6 +109,7 @@ class Config:
             self.__config["Simulator"] = {}
             self.__config["Simulator"]["Host"] = "127.0.0.1"
             self.__config["Simulator"]["Port"] = "25561"
+            self.__config["Simulator"]["Debug"] = "false"
 
             # Create config file
             self.__writeConfig()

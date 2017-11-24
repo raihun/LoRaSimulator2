@@ -11,6 +11,13 @@ class Simulator:
     def __init__(self, devicename, baudrate):
         self.__config = Config()
         self.__isStart = False
+
+        # Get debug mode
+        simulatorDebug = self.__config.getSimulatorDebug().strip().lower()
+        if(simulatorDebug in "true"):
+            self.__debug = True
+        else:
+            self.__debug = False
         return
 
     def write(self, rawdata):
@@ -41,7 +48,8 @@ class Simulator:
 
     def readline(self):
         msg = self.recvmsg.encode()
-        print("[Simulator-Recv] {0}".format(msg))
+        if(self.__debug):
+            print("[Simulator-Recv] {0}".format(msg))
         return msg
 
     def __modeConfig(self, data):
@@ -70,7 +78,8 @@ class Simulator:
         return
 
     def __modeStart(self, data):
-        print("[Simulator-Send] {0}".format(data))
+        if(self.__debug):
+            print("[Simulator-Send] {0}".format(data))
         self.sock.send(data.encode())
         return
 
