@@ -76,7 +76,7 @@ public class NodeController {
     }
 
     // LoRaパラメータ面での接続可能かチェック
-    public Boolean checkConnectivity(Node nodeA, Node nodeB, Boolean checkPanid) {
+    public Boolean checkConnectivity(Node nodeA, Node nodeB) {
         Boolean result = true;
 
         // Bandwidth チェック
@@ -89,10 +89,6 @@ public class NodeController {
         }
         // Channel チェック
         if(nodeA.getChannel() != nodeB.getChannel()) {
-            result = false;
-        }
-        // PAN ID チェック
-        if((nodeA.getPanid() != nodeB.getPanid()) && checkPanid) {
             result = false;
         }
 
