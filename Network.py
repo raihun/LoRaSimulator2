@@ -40,8 +40,8 @@ class Network(Lora):
         gRecvListeners = []
 
         # route
-        route = Route()
-        self.addRecvlistener(route.putRoute)
+        self.route = Route()
+        self.addRecvlistener(self.route.putRoute)
 
         # LoraのReceive Listenersに追加
         super(Network, self).addRecvlistener(self.recvEvent)
@@ -54,6 +54,8 @@ class Network(Lora):
 
         # 自分宛てではない場合
         ownid = self.__config.getOwnid()
+        if(ownid is not packet.getNetworkDst()):
+            return
 
         #  転送
         # super(Network, self).send(packet.exportPacket())
