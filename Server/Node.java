@@ -233,24 +233,34 @@ public class Node {
         // 排他制御
         ArrayList<Node> lockedNodes = new ArrayList<Node>();
         for(Node node : nodes) {
-            if(node.getRecvLock()) {
+            // LoRaパラメータが同一(PANID関係なし)で、受信中のノードに対しては
+            // 妨害電波となるため、電波混信再現のため、setFailed(true)とする
+            if(nc.checkConnectivity(this, node, false) && node.getRecvLock()) {
                 node.setFailed(true);
-            } else {
+            }
+
+            // LoRaパラメータが同一(PANIDも同一)で、フリーのノードに対しては
+            // 受信中フラグを立てる
+            if(nc.checkConnectivity(this, node, true) && node.getRecvLock() == false){
                 node.setRecvLock(true);
                 lockedNodes.add(node);
             }
         }
+
+        // 送信時間シミュレート (Band Width、Spread Factorの影響を受ける)
         setSendLock(true);
         try {
             Thread.sleep(getSpeed());
         } catch(InterruptedException e){
             e.printStackTrace();
         }
+        setSendLock(false);
+
+        // 他ノードへの送信
         for(Node node : lockedNodes) {
             node.setRecvLock(false);
             node.receivePacket(msg, getPanid(), getOwnid());
         }
-        setSendLock(false);
         this.child.send("OK");
         return;
     }
