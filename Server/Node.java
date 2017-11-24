@@ -233,15 +233,15 @@ public class Node {
         // 排他制御
         ArrayList<Node> lockedNodes = new ArrayList<Node>();
         for(Node node : nodes) {
-            // LoRaパラメータが同一(PANID関係なし)で、受信中のノードに対しては
+            // LoRaパラメータが同一で、受信中のノードに対しては
             // 妨害電波となるため、電波混信再現のため、setFailed(true)とする
-            if(nc.checkConnectivity(this, node, false) && node.getRecvLock()) {
+            if(nc.checkConnectivity(this, node) && node.getRecvLock()) {
                 node.setFailed(true);
             }
 
-            // LoRaパラメータが同一(PANIDも同一)で、フリーのノードに対しては
+            // LoRaパラメータが同一で、フリーのノードに対しては
             // 受信中フラグを立てる
-            if(nc.checkConnectivity(this, node, true) && node.getRecvLock() == false){
+            if(nc.checkConnectivity(this, node) && node.getRecvLock() == false){
                 node.setRecvLock(true);
                 lockedNodes.add(node);
             }
@@ -259,23 +259,51 @@ public class Node {
         // 他ノードへの送信
         for(Node node : lockedNodes) {
             node.setRecvLock(false);
-            node.receivePacket(msg, getPanid(), getOwnid());
+            node.receivePacket(msg, getOwnid());
         }
         this.child.send("OK");
         return;
     }
 
     // パケット受信
-    public void receivePacket(String msg, String panid, String srcid) {
+    public void receivePacket(String msg, String srcid) {
+        // 各種パラメータ取得
+        String _panid = null;
+        String _dstid = null;
+        String _payload = null;
+        if(msg.length() > 8) {
+            _panid = msg.substring(0, 4);
+            _dstid = msg.substring(4, 8);
+            _payload = msg.substring(8, msg.length());
+        }
+
+        // 通信妨害チェック
         if(getFailed()) {
             setFailed(false);
             return;
         }
 
+        // PANIDチェック
+        // (8Byteを超えるパケットは、フォーマットに従っていると仮定)
+        if(msg.length() > 8) {
+            if(this.panid.equals(_panid) == false) {
+                return;
+            }
+        }
+
+        // 宛先チェック
+        // (8Byteを超えるパケットは、フォーマットに従っていると仮定)
+        if(msg.length() > 8) {
+            if(_dstid.equals(this.ownid) == false && _dstid.equals("FFFF") == false) {
+                return;
+            }
+        }
+
+        // 送信パケットを受信パケットへ変換
+        // (8Byteを超えるパケットは、フォーマットに従っていると仮定)
         String newMsg;
         if(msg.length() > 8) {
-            String payload = msg.substring(8, msg.length());
-            newMsg = new String("FFC9" + panid + srcid + payload);
+            newMsg = new String("FFC9" + _panid + srcid + _payload);
         } else {
             newMsg = new String(msg);
         }

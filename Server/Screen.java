@@ -265,7 +265,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 break;
             case "Recv":
                 if(selectNode == null) break;
-                selectNode.receivePacket(tfCommand.getText(), selectNode.getPanid(), selectNode.getOwnid());
+                selectNode.receivePacket(tfCommand.getText(), selectNode.getOwnid());
                 break;
         }
     }
