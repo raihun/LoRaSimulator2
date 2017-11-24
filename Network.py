@@ -27,6 +27,8 @@ class Network(Lora):
     def send(self, data="", dstid="FFFF", ptype=0):
         # 送信パケット生成
         packet = Packet()
+        panid = self.__config.getPanid()
+        packet.setPanId(panid)
         datalinkDst = self.route.getNextnode(dstid)
         if(datalinkDst is None):
             datalinkDst = "FFFF"
