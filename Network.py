@@ -2,6 +2,7 @@
 from Config import Config
 from Lora import Lora
 from Packet import Packet
+from random import randrange
 from Route import Route
 from threading import Thread
 from time import sleep
@@ -98,5 +99,6 @@ class Network(Lora):
     def __broadcastThread(self, sendMethod):
         while True:
             sendMethod("0001FFFFOK", "FFFF", 4)
-            sleep(10)
+            r = randrange(10, 20)
+            sleep(r)
         return
