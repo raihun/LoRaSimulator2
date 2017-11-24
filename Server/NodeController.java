@@ -68,11 +68,37 @@ public class NodeController {
         return selectNodeList;
     }
 
-
     // ノード間の距離算出
     public double getDistance(Node nodeA, Node nodeB) {
         int[] posA = nodeA.getPosition();
         int[] posB = nodeB.getPosition();
         return Math.sqrt(Math.pow(posA[0] - posB[0], 2) + Math.pow(posA[1] - posB[1], 2));
+    }
+
+    // LoRaパラメータ面での接続可能かチェック
+    public Boolean checkConnectivity(Node nodeA, Node nodeB) {
+        Boolean result = true;
+
+        // Bandwidth チェック
+        if(nodeA.getBandwidth() != nodeB.getBandwidth()) {
+            result = false;
+        }
+
+        // Spread Factor チェック
+        if(nodeA.getSpreadfactor() != nodeB.getSpreadfactor()) {
+            result = false;
+        }
+
+        // Channel チェック
+        if(nodeA.getChannel() != nodeB.getChannel()) {
+            result = false;
+        }
+
+        // PAN ID チェック
+        if(nodeA.panid() != nodeB.panid()) {
+            result = false;
+        }
+
+        return result;
     }
 }

@@ -128,6 +128,22 @@ public class Node {
         return;
     }
 
+    public int getBandwidth() {
+        return bw;
+    }
+
+    public int getSpreadfactor() {
+        return sf;
+    }
+
+    public int getChannel() {
+        return ch;
+    }
+
+    public int getPower() {
+        return pwr;
+    }
+
     public String getPanid() {
         return panid;
     }
