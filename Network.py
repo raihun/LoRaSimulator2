@@ -127,7 +127,7 @@ class Network(Lora):
             self.__packetBuffer.append([bufferId, seq, packet.getPayload()])
 
         # packetTypeチェック (FINの場合、メッセージ転送へ)
-        if(packetType != 2 and packetType != 6):
+        if not (packetType in [2, 6]):
             return
 
         # パケット結合

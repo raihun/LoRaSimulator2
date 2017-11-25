@@ -79,7 +79,7 @@ class Route:
         packetType = self.__packet.getPacketType()
         datalinkDst = self.__packet.getDatalinkSrc()
 
-        if not (packetType == 4 or packetType == 5 or packetType == 6):
+        if not (packetType in [4, 5, 6]):
             self.__resetAliveTime(datalinkDst)
             return
 
