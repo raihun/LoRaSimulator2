@@ -25,7 +25,7 @@ public class TCPListener extends Thread {
         while ( true ) {
             try {
                 Socket sockTCP = servSock.accept();
-                Node node = this.nc.addNode(10, 10);
+                Node node = this.nc.addNode(50, 50);
                 TCPChild child = new TCPChild( sockTCP, node );
                 child.start();
             } catch ( IOException e ) {
