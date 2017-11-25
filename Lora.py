@@ -3,16 +3,17 @@ from collections import deque
 from Config import Config  # Config.py
 from LoraFilter import LoraFilter  # LoraFilter.py
 from serial import Serial
+from Simulator import Simulator
 from threading import Thread
-from time import sleep
+from time import sleep, time
 
 
 class Lora:
     """ ES920LRを直接操作するクラス """
+
     def __init__(self):
         self.__config = Config()
         self.__connect()  # ES920LR Connect
-        self.__setting()  # ES920LR Setting
         return
 
     """ シリアル通信の受信メッセージを送るメソッドを追加 """
@@ -32,27 +33,49 @@ class Lora:
             Lora.sendMessages.append(data)
         return
 
-    """ 初回インスタンス化時のみ有効となる接続処理 """
+    """ 初回インスタンス化時のみ有効となる接続/設定処理 """
     def __connect(self):
         # 初回起動チェック
         try:
-            if(Lora.isConnect):
+            if(Lora.__isConnect):
                 return
         except AttributeError:
-            Lora.isConnect = True
+            Lora.__isConnect = True
+            Lora.__isStart = False
+            Lora.__isLock = False
+
+        # Get simulator mode
+        mode = self.__config.getSimulator().strip().lower()
 
         # Connect device
         devicename = self.__config.getDevicename()
         baudrate = self.__config.getBaudrate()
-        try:
-            Lora.device = Serial(devicename, int(baudrate))
-        except Exception as e:
-            print(e)
-            return
+        if(mode in "true"):
+            Lora.device = Simulator(devicename, int(baudrate))
+        else:
+            try:
+                Lora.device = Serial(devicename, int(baudrate))
+            except Exception as e:
+                print(e)
+                return
+
+        # ES920 Welcomeメッセージ待機
+        sleep(3.0)
 
         # Set Send/Recv variables
         Lora.sendMessages = deque()
         Lora.recvListeners = []
+
+        # 各種設定
+        self.send(["2", "a 2"])
+        self.send("b %s" % self.__config.getBandwidth())
+        self.send("c %s" % self.__config.getSpreadingfactor())
+        self.send("d %s" % self.__config.getChannel())
+        self.send("e %s" % self.__config.getPanid())
+        self.send("f %s" % self.__config.getOwnid())
+        self.send(["l 2", "n 2", "o 1", "p 1", "q 1", "s 1"])
+        self.send("u %s" % self.__config.getPower())
+        self.send(["w", "z"])
 
         # Send thread
         self.__thSend = Thread(
@@ -71,28 +94,6 @@ class Lora:
         self.__thRecv.start()
         return
 
-    """ 初回インスタンス化時のみ有効となる設定処理 """
-    def __setting(self):
-        # 初回起動チェック
-        try:
-            if(Lora.initSetting):
-                return
-        except AttributeError:
-            Lora.initSetting = True
-
-        # 各種設定
-        sleep(3.0)
-        self.send(["2", "a 2"])
-        self.send("b %s" % self.__config.getBandwidth())
-        self.send("c %s" % self.__config.getSpreadingfactor())
-        self.send("d %s" % self.__config.getChannel())
-        self.send("e %s" % self.__config.getPanid())
-        self.send("f %s" % self.__config.getOwnid())
-        self.send(["l 2", "n 2", "o 1", "p 1", "q 1", "s 1"])
-        self.send("u %s" % self.__config.getPower())
-        self.send(["w", "z"])
-        return
-
     """ 送信待機スレッド """
     @staticmethod
     def __sendThread(self, device, sendMessages):
@@ -102,11 +103,16 @@ class Lora:
                 sleep(0.01)
                 continue
 
+            # ロック時
+            t = time()
+            while(Lora.__isLock):
+                if(time() - t > 10.0):  # タイムアウト
+                    break
+                sleep(0.01)
+
             # 送信待機メッセージキューからデキュー
             msg = sendMessages.popleft()
-
-            # メッセージが空の場合
-            if(msg == ""):
+            if(msg is ""):
                 continue
 
             # メッセージ送信
@@ -114,8 +120,15 @@ class Lora:
             cmd = "{0}\r\n".format(cmd).encode()
             device.write(cmd)
 
-            # コマンド間隔 最低100ms必要
-            sleep(0.1)
+            # コマンド間隔
+            if(Lora.__isStart):
+                Lora.__isLock = True
+            else:
+                sleep(0.1)  # 設定時
+
+            # スタート検知
+            if(msg is "z"):
+                Lora.__isStart = True
         return
 
     """ 受信待機スレッド """
@@ -133,6 +146,10 @@ class Lora:
                 line = device.readline().decode('utf-8').strip()
             except UnicodeDecodeError:
                 continue
+
+            # ロック解除
+            if(line == "OK" or line.find("NG") >= 0):
+                Lora.__isLock = False
 
             # フィルタリング
             line = lorafilter.recvFilter(line)

@@ -24,7 +24,10 @@ class LoraFilter:
 
         # NGの場合
         if(line.find("NG") >= 0):
-            code = line.split(" ")[1]
+            try:
+                code = line.split(" ")[1]
+            except IndexError:
+                return None
             if(code == "001"):
                 self.log.add("未定義コマンド", "Error")
             if(code == "002"):

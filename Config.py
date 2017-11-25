@@ -12,6 +12,12 @@ class Config:
         self.__readConfig()
         return
 
+    def getSimulator(self):
+        simulator = self.__config["General"]["Simulator"]
+        if(simulator == ""):
+            simulator = "false"
+        return simulator
+
     def getDevicename(self):
         devicename = self.__config["Device"]["Name"]
         if(devicename == ""):
@@ -27,7 +33,7 @@ class Config:
     def getBandwidth(self):
         bandwidth = self.__config["LoRa"]["Bandwidth"]
         if(bandwidth == ""):
-            bandwidth = "4"
+            bandwidth = "4" # 3, 4, 5, 6
         return bandwidth
 
     def getSpreadingfactor(self):
@@ -43,10 +49,15 @@ class Config:
         return channel
 
     def getPanid(self):
-        panid = self.__config["LoRa"]["Channel"]
+        panid = self.__config["LoRa"]["Panid"]
         if(panid == ""):
             panid = "0001"
         return panid
+
+    def setOwnid(self, param):
+        self.__config["LoRa"]["Ownid"] = param
+        self.__writeConfig()
+        return
 
     def getOwnid(self):
         ownid = self.__config["LoRa"]["Ownid"]
@@ -60,9 +71,31 @@ class Config:
             power = "13"
         return power
 
+    def getHost(self):
+        host = self.__config["Simulator"]["Host"]
+        if(host == ""):
+            host = "127.0.0.1"
+        return host
+
+    def getPort(self):
+        host = self.__config["Simulator"]["Port"]
+        if(host == ""):
+            host = "25561"
+        return host
+
+    def getSimulatorDebug(self):
+        debug = self.__config["Simulator"]["Debug"]
+        if(debug == ""):
+            debug = "false"
+        return debug
+
     """ コンフィグファイル 読込 """
     def __readConfig(self):
         if(not exists(self.__filename)):
+            # General
+            self.__config["General"] = {}
+            self.__config["General"]["Simulator"] = "false"
+
             # Device setting
             self.__config["Device"] = {}
             self.__config["Device"]["Name"] = "/dev/tty.USB0"
@@ -70,12 +103,18 @@ class Config:
 
             # LoRa setting
             self.__config["LoRa"] = {}
-            self.__config["LoRa"]["Bandwidth"] = "4"  # 4:125kHz
+            self.__config["LoRa"]["Bandwidth"] = "4"  # 3, 4:125kHz, 5, 6
             self.__config["LoRa"]["Spreadingfactor"] = "7"  # 7-12
             self.__config["LoRa"]["Channel"] = "1"
             self.__config["LoRa"]["Panid"] = "0001"
             self.__config["LoRa"]["Ownid"] = "0001"
             self.__config["LoRa"]["Power"] = "13"  # Min:-4 to Max:13
+
+            # Simulator setting
+            self.__config["Simulator"] = {}
+            self.__config["Simulator"]["Host"] = "127.0.0.1"
+            self.__config["Simulator"]["Port"] = "25561"
+            self.__config["Simulator"]["Debug"] = "false"
 
             # Create config file
             self.__writeConfig()

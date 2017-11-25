@@ -63,14 +63,14 @@ class Packet:
 
     """
         パケットタイプ (3bit: 0-7)
-        0: 通常パケット
-        1: 通常パケット(終了)
-        2: ACK
-        3: ルートブロードキャスト
-        4: Reserved
-        5: Reserved
-        6: Reserved
-        7: Reserved
+        0(000): Normal
+        1(001): Normal + ACK
+        2(010): Normal + FIN
+        3(011): Other (Payload 1Byte目がTypeとなる)
+        4(100): Route
+        5(101): Route + ACK
+        6(110): Route + FIN
+        7(111): Reserved
     """
     __packetType = 0
 
@@ -82,7 +82,7 @@ class Packet:
         return self.__packetType
 
     """ TTL (5bit: 0-31) """
-    __ttl = 0
+    __ttl = 31
 
     def setTTL(self, ttl):
         self.__ttl = ttl
@@ -137,7 +137,7 @@ class Packet:
         self.setPanId(data[4:8])
         self.setDatalinkSrc(data[8:12])
         self.setNetworkDst(data[12:16])
-        self.setNetworkDst(data[16:20])
+        self.setNetworkSrc(data[16:20])
         margedData = int(data[20:22], 16)
         ptype, ttl = self.purgeByte(margedData)
         self.setPacketType(ptype)
@@ -154,16 +154,35 @@ class Packet:
 
     """ Packet() -> 生パケット """
     def exportPacket(self):
-        data = ""
-        data = data + self.getPanId()
-        data = data + self.getDatalinkDst()
-        data = data + self.getNetworkDst()
-        data = data + self.getNetworkSrc()
-        data = data + "{0:1X}".format(self.mergeByte())
-        data = data + "{0:1X}".format(self.getSequenceNo())
-        data = data + self.getPayload()
+        data = []
+        splitPayload = self.__split_str(self.getPayload(), 38)
+        size = len(splitPayload) - 1
+        i = 0
+        while True:
+            datum = ""
+            datum += self.getPanId()
+            datum += self.getDatalinkDst()
+            datum += self.getNetworkDst()
+            datum += self.getNetworkSrc()
+            if(i >= size and self.getPacketType() is 0):
+                self.setPacketType(2)
+            if(i >= size and self.getPacketType() is 4):
+                self.setPacketType(6)
+            datum += "{0:02X}".format(self.mergeByte())
+            datum += "{0:02X}".format(i % 0xFF)
+            if(size >= 0):
+                datum += splitPayload[i]
+            data.append(datum)
+            i += 1
+            if(i > size):
+                break
         print("[Raw packetS] {0}".format(data))
         return data
+
+    """ 文字列を指定バイト数ごとに分割 """
+    def __split_str(self, s, n):
+        length = len(s)
+        return [s[i:i+n] for i in range(0, length, n)]
 
     """ RSSI値 算出 """
     def convertRSSI(self, rawrssi):

@@ -1,3 +1,5 @@
+TestServer/
 __pycache__/
 logs/
+*.class
 test*.py
