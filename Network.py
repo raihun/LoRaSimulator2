@@ -7,6 +7,7 @@ from Route import Route
 from threading import Thread
 from time import sleep
 
+
 class Network(Lora):
     """
         ネットワークの基礎クラス
@@ -102,7 +103,10 @@ class Network(Lora):
             パケット結合部
         """
         # packetBuffer追加
-        bufferId = "{0}{1}".format( packet.getNetworkDst(), packet.getNetworkSrc() )
+        bufferId = "{0}{1}".format(
+            packet.getNetworkDst(),
+            packet.getNetworkSrc()
+        )
         seq = packet.getSequenceNo()
         packetType = packet.getPacketType()
 

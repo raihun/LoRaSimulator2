@@ -6,6 +6,7 @@ import re
 from time import sleep
 from threading import Thread
 
+
 class Route:
     """
         このクラスでは、ルーティングテーブルを構築する
@@ -32,7 +33,6 @@ class Route:
         self.thCountAlive.start()
         return
 
-
     def getNextnode(self, datalinkDst):
         """
             ネットワーク層の、宛先IDを引数に渡すと、
@@ -45,7 +45,6 @@ class Route:
         selectHopsList = [nextDst[self.__INDEX_HOP] for nextDst in nextDstList]
 
         return nextDstList[selectHopsList.index(min(selectHopsList))][1]
-
 
     def select(self, columnName="", data=""):
         """
@@ -67,7 +66,6 @@ class Route:
             return list(filter(lambda x: x[4] == data, self.__routeList))
         else:
             return
-
 
     def putRoute(self, msg):
         """
@@ -114,7 +112,7 @@ class Route:
         print(self.__routeList)
         return
 
-    def getRoute(self, resultType = False):
+    def getRoute(self, resultType=False):
         # ネットワーク層宛先, 最短Hopのリスト作成
         resultTables = []
         for i in range(len(self.__routeList)):
@@ -148,7 +146,10 @@ class Route:
         # payload部作成
         payload = ""
         for i in range(len(resultTables)):
-            payload += "{0}{1:02X}".format(resultTables[i][0], resultTables[i][1])
+            payload += "{0}{1:02X}".format(
+                resultTables[i][0],
+                resultTables[i][1]
+            )
         return payload
 
     def __resetAliveTime(self, datalinkDst):
@@ -157,7 +158,6 @@ class Route:
             if self.__routeList[i][self.__INDEX_DLDST] == datalinkDst:
                 self.__routeList[i][self.__INDEX_ALIVE] = self.__ALIVE_TIME
         return
-
 
     def __countDownAliveTime(self):
         """
