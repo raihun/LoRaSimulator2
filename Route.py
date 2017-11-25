@@ -127,16 +127,17 @@ class Route:
             findFlag = False
             for j in range(len(resultTables)):
                 # HOP数が同じ場合、RSSI値によって判断
-                if(resultTables[j][0] is nwDst and resultTables[j][1] == hop):
+                if(resultTables[j][0] == nwDst and resultTables[j][1] == hop):
                     if(resultTables[j][2] < rssi):
                         resultTables[j][1] = hop
-                        findFlag = True
+                        resultTables[j][2] = rssi
+                    findFlag = True
                 # HOP数が少ない場合、上書き
-                elif(resultTables[j][0] is nwDst and resultTables[j][1] > hop):
+                elif(resultTables[j][0] == nwDst and resultTables[j][1] > hop):
                     resultTables[j][1] = hop
                     findFlag = True
                 # HOP数が多い場合でも、フラグを立ててresultTablesへの追加を防ぐ
-                elif(resultTables[j][0] is nwDst and resultTables[j][1] < hop):
+                elif(resultTables[j][0] == nwDst):
                     findFlag = True
             if(not findFlag):
                 resultTables.append([nwDst, hop, rssi])
