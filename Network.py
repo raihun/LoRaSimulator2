@@ -82,6 +82,11 @@ class Network(Lora):
 
     """ Loraから来るメッセージの2次フィルタリング """
     def recvEvent(self, msg):
+        # パケットサイズエラーチェック
+        if(len(msg) > 62):
+            print("!!! ERROR (Java OutputStream) !!!")
+            return
+
         # 受信パケット
         packet = Packet()
         packet.importPacket(msg)
