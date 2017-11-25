@@ -54,6 +54,11 @@ class Config:
             panid = "0001"
         return panid
 
+    def setOwnid(self, param):
+        self.__config["LoRa"]["Ownid"] = param
+        self.__writeConfig()
+        return
+
     def getOwnid(self):
         ownid = self.__config["LoRa"]["Ownid"]
         if(ownid == ""):
