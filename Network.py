@@ -34,10 +34,10 @@ class Network(Lora):
         datalinkDst = self.route.getNextnode(dstid)
         if(datalinkDst is None):
             datalinkDst = "FFFF"
-        packet.setDatalinkDst(dstid)
+        packet.setDatalinkDst(datalinkDst)
         ownid = self.__config.getOwnid()
         packet.setDatalinkSrc(ownid)
-        packet.setNetworkDst(dstid)
+        packet.setNetworkDst(datalinkDst)
         packet.setNetworkSrc(ownid)
         packet.setPacketType(ptype)
         packet.setPayload(data)
