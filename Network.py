@@ -108,7 +108,10 @@ class Network(Lora):
                 if(self.__packetBuffer[i][1] >= seq):
                     return
                 self.__packetBuffer[i][1] = seq
-                self.__packetBuffer[i][1] += packet.getPayload()
+                self.__packetBuffer[i][1] = "{0}{1}".format(
+                    self.__packetBuffer[i][1],
+                    packet.getPayload()
+                )
                 findBuffer = True
                 break
         if(not findBuffer and seq == 0):
