@@ -32,7 +32,7 @@ class Simulator:
         if(not self.__isStart):
             return 0
         try:
-            self.recvmsg = self.sock.recv(128).decode().strip()
+            self.recvmsg = self.sock.recv(1024).decode().strip()
         except AttributeError:  # 接続よりも先に呼び出した場合
             return 0
         except ConnectionResetError:  # サーバ側からの切断

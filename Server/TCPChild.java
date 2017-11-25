@@ -27,7 +27,7 @@ public class TCPChild extends Thread {
         try {
             InputStream is = sockTCP.getInputStream();
             int size;
-            byte[] buf = new byte[128];
+            byte[] buf = new byte[1024];
             while( (size = is.read(buf, 0, buf.length)) != -1 ) {
                 String sBuf = new String( buf );
                 node.sendPacket( sBuf.substring(0, size) );
