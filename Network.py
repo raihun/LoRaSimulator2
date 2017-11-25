@@ -61,7 +61,6 @@ class Network(Lora):
 
         # Route
         self.route = Route()
-        # super(Network, self).addRecvlistener(self.route.putRoute)
         self.__packetBuffer = []
 
         # LoraのReceive Listenersに追加
@@ -91,13 +90,24 @@ class Network(Lora):
         # 受信パケット
         packet = Packet()
         packet.importPacket(msg)
+        packetType = packet.getPacketType()
+        networkDst = packet.getNetworkDst()
 
+        """
+            パケット転送部
+        """
+        ownid = self.__config.getOwnid()
         # NW層自分宛て ではない場合
-        # ownid = self.__config.getOwnid()
-        # if(ownid is not packet.getNetworkDst()):
-        #    return
-        #  転送
-        # super(Network, self).send(packet.exportPacket())
+        if (networkDst != ownid and (packetType in range(4))):
+            print("Repeat!!!")
+            datalinkDst = self.route.getNextnode(networkDst)
+            if(datalinkDst is None):
+                return
+            packet.setDatalinkDst(datalinkDst)
+            packet.setDatalinkSrc(ownid)
+            if(packet.decrementTTL()):  # TTL減算チェック
+                super(Network, self).send(packet.exportPacket())
+            return
 
         """
             パケット結合部
@@ -108,7 +118,6 @@ class Network(Lora):
             packet.getNetworkSrc()
         )
         seq = packet.getSequenceNo()
-        packetType = packet.getPacketType()
 
         findBuffer = False
         for i in range(len(self.__packetBuffer)):
@@ -143,7 +152,8 @@ class Network(Lora):
             メッセージ転送
         """
         # Routeへ転送
-        self.route.putRoute(newMsg)
+        if(packetType == 6):
+            self.route.putRoute(newMsg)
 
         # メッセージ転送
         global gRecvListeners
