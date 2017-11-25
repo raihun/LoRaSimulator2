@@ -98,24 +98,31 @@ class Network(Lora):
         """
         # packetBuffer追加
         bufferId = "{0}{1}".format( packet.getNetworkDst(), packet.getNetworkSrc() )
+        seq = packet.getSequenceNo()
+        packetType = packet.getPacketType()
+
         findBuffer = False
         for i in range(len(self.__packetBuffer)):
             if(bufferId == self.__packetBuffer[i][0]):
+                # シーケンス番号チェック
+                if(self.__packetBuffer[i][1] >= seq):
+                    return
+                self.__packetBuffer[i][1] = seq
                 self.__packetBuffer[i][1] += packet.getPayload()
                 findBuffer = True
                 break
-        if(not findBuffer):
-            self.__packetBuffer.append([bufferId, packet.getPayload()])
+        if(not findBuffer and seq == 0):
+            self.__packetBuffer.append([bufferId, seq, packet.getPayload()])
 
         # packetTypeチェック (FINの場合、メッセージ転送へ)
-        if(packet.getPacketType() != 2 and packet.getPacketType() != 6):
+        if(packetType != 2 and packetType != 6):
             return
 
         # パケット結合
         payloadBuffer = ""
         for i in range(len(self.__packetBuffer)):
             if(bufferId == self.__packetBuffer[i][0]):
-                payloadBuffer = self.__packetBuffer[i][1]
+                payloadBuffer = self.__packetBuffer[i][2]
                 self.__packetBuffer.pop(i)
                 break
         newMsg = msg[:24] + payloadBuffer
