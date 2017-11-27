@@ -44,6 +44,10 @@ class Route:
             return None
         selectHopsList = [nextDst[self.__INDEX_HOP] for nextDst in nextDstList]
 
+        # 最小HOP数がMAXになってしまった場合
+        if (min(selectHopsList) >= 255):
+            return None
+
         return nextDstList[selectHopsList.index(min(selectHopsList))][1]
 
     def select(self, columnName="", data=""):
