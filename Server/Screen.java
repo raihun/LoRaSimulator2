@@ -106,24 +106,28 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         labelBandwidth.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
         pNodeControl.add( labelBandwidth );
         tfBandwidth = new JTextField();
+        tfBandwidth.setText("3, 4, 5, 6");
         pNodeControl.add( tfBandwidth );
 
         JLabel labelSpreadfactor = new JLabel("Spread Factor");
         labelSpreadfactor.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
         pNodeControl.add( labelSpreadfactor );
         tfSpreadfactor = new JTextField();
+        tfSpreadfactor.setText("7-12");
         pNodeControl.add( tfSpreadfactor );
 
         JLabel labelChannel = new JLabel("Channel");
         labelChannel.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
         pNodeControl.add( labelChannel );
         tfChannel = new JTextField();
+        tfChannel.setText("1-15, 1-7, 1-5");
         pNodeControl.add( tfChannel );
 
         JLabel labelPower = new JLabel("Power");
         labelPower.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
         pNodeControl.add( labelPower );
         tfPower = new JTextField();
+        tfPower.setText("-4 - 13[dBm]");
         pNodeControl.add( tfPower );
 
         JButton btnUpdate = new JButton("Update");
@@ -377,10 +381,10 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
 
             // ノード情報 クリア
             labelOwnid.setText("----");
-            tfBandwidth.setText("");
-            tfSpreadfactor.setText("");
-            tfChannel.setText("");
-            tfPower.setText("");
+            tfBandwidth.setText("3, 4, 5, 6");
+            tfSpreadfactor.setText("7-12");
+            tfChannel.setText("1-15, 1-7, 1-5");
+            tfPower.setText("-4 - 13[dBm]");
         }
     }
     public void mouseDragged( MouseEvent e ) {
