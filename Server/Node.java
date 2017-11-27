@@ -128,18 +128,57 @@ public class Node {
         return;
     }
 
+    public void setBandwidth(int bw) {
+        if(3 <= bw && bw <= 6) {
+            this.bw = bw;
+        }
+    }
     public int getBandwidth() {
         return bw;
     }
 
+    public void setSpreadfactor(int sf) {
+        if(7 <= sf && sf <= 12) {
+            this.sf = sf;
+        }
+    }
     public int getSpreadfactor() {
         return sf;
     }
 
+    public void setChannel(int ch) {
+        switch(bw) {
+            case 3: // 62.5kHz
+                if(1 <= ch && ch <= 15) {
+                    this.ch = ch;
+                }
+                break;
+            case 4: // 125kHz
+                if(1 <= ch && ch <= 15) {
+                    this.ch = ch;
+                }
+                break;
+            case 5: // 250kHz
+                if(1 <= ch && ch <= 7) {
+                    this.ch = ch;
+                }
+                break;
+            case 6: // 500kHz
+                if(1 <= ch && ch <= 5) {
+                    this.ch = ch;
+                }
+                break;
+        }
+    }
     public int getChannel() {
         return ch;
     }
 
+    public void setPower(int pwr) {
+        if(-4 <= pwr && pwr <= 13) {
+            this.pwr = pwr;
+        }
+    }
     public int getPower() {
         return pwr;
     }
@@ -281,7 +320,7 @@ public class Node {
         String _panid = null;
         String _dstid = null;
         String _payload = null;
-        
+
         if(msg.length() > 8) {
             // (8Byteを超えるパケットは、フォーマットに従っていると仮定)
             _panid = msg.substring(0, 4);
