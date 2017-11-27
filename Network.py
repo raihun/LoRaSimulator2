@@ -7,6 +7,7 @@ from Route import Route
 from threading import Thread
 from time import sleep
 
+
 class Network(Lora):
     """
         ネットワークの基礎クラス
@@ -33,10 +34,10 @@ class Network(Lora):
         datalinkDst = self.route.getNextnode(dstid)
         if(datalinkDst is None):
             datalinkDst = "FFFF"
-        packet.setDatalinkDst(dstid)
+        packet.setDatalinkDst(datalinkDst)
         ownid = self.__config.getOwnid()
         packet.setDatalinkSrc(ownid)
-        packet.setNetworkDst(dstid)
+        packet.setNetworkDst(datalinkDst)
         packet.setNetworkSrc(ownid)
         packet.setPacketType(ptype)
         packet.setPayload(data)
@@ -60,7 +61,6 @@ class Network(Lora):
 
         # Route
         self.route = Route()
-        # super(Network, self).addRecvlistener(self.route.putRoute)
         self.__packetBuffer = []
 
         # LoraのReceive Listenersに追加
@@ -90,27 +90,41 @@ class Network(Lora):
         # 受信パケット
         packet = Packet()
         packet.importPacket(msg)
+        packetType = packet.getPacketType()
+        networkDst = packet.getNetworkDst()
 
-        # NW層自分宛て ではない場合
-        # ownid = self.__config.getOwnid()
-        # if(ownid is not packet.getNetworkDst()):
-        #    return
-        #  転送
-        # super(Network, self).send(packet.exportPacket())
+        """
+            パケット転送部
+        """
+        ownid = self.__config.getOwnid()
+        # NW層自分宛てではない AND パケットタイプが通常(0-3)の場合
+        if (networkDst != ownid and (packetType in range(4))):
+            print("Repeat!!!")
+            datalinkDst = self.route.getNextnode(networkDst)
+            if(datalinkDst is None):
+                return
+            packet.setDatalinkDst(datalinkDst)
+            packet.setDatalinkSrc(ownid)
+            if(packet.decrementTTL()):  # TTL減算チェック
+                super(Network, self).send(packet.exportPacket())
+            return
 
         """
             パケット結合部
         """
         # packetBuffer追加
-        bufferId = "{0}{1}".format( packet.getNetworkDst(), packet.getNetworkSrc() )
+        bufferId = "{0}{1}".format(
+            packet.getNetworkDst(),
+            packet.getNetworkSrc()
+        )
         seq = packet.getSequenceNo()
-        packetType = packet.getPacketType()
 
         findBuffer = False
         for i in range(len(self.__packetBuffer)):
             if(bufferId == self.__packetBuffer[i][0]):
                 # シーケンス番号チェック
                 if(self.__packetBuffer[i][1] >= seq):
+                    self.__packetBuffer.pop(i)
                     return
                 self.__packetBuffer[i][1] = seq
                 self.__packetBuffer[i][2] = "{0}{1}".format(
@@ -123,7 +137,7 @@ class Network(Lora):
             self.__packetBuffer.append([bufferId, seq, packet.getPayload()])
 
         # packetTypeチェック (FINの場合、メッセージ転送へ)
-        if(packetType != 2 and packetType != 6):
+        if not (packetType in [2, 6]):
             return
 
         # パケット結合
@@ -139,7 +153,8 @@ class Network(Lora):
             メッセージ転送
         """
         # Routeへ転送
-        self.route.putRoute(newMsg)
+        if(packetType == 6):
+            self.route.putRoute(newMsg)
 
         # メッセージ転送
         global gRecvListeners

@@ -16,6 +16,11 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     private JButton btnAddPoint;
     private JButton btnRemovePoint;
     private JButton btnMove;
+    private JLabel labelOwnid;
+    private JTextField tfBandwidth;
+    private JTextField tfSpreadfactor;
+    private JTextField tfChannel;
+    private JTextField tfPower;
     private JTextField tfCommand;
 
     public Screen() {
@@ -31,7 +36,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
 
         // 右上パネル1
         JPanel pMenu = new JPanel();
-        pMenu.setBounds( 1005, 5, 265, 40 );
+        pMenu.setBounds( 1005, 5, 265, 35 );
         pMenu.setLayout( new GridLayout(1, 2) );
         pMenu.setBackground( new Color(175, 220, 220) );
 
@@ -83,6 +88,50 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pControl.add( btnMove );
 
         this.add(pControl);
+
+        // 右中央パネル
+        JPanel pNodeControl = new JPanel();
+        pNodeControl.setBounds( 1005, 120, 265, 120);
+        pNodeControl.setLayout( new GridLayout(6, 2) );
+        pNodeControl.setBackground( new Color(175, 220, 220) );
+
+        JLabel _labelOwnid = new JLabel("Own ID");
+        _labelOwnid.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        pNodeControl.add( _labelOwnid );
+        labelOwnid = new JLabel("----");
+        labelOwnid.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        pNodeControl.add( labelOwnid );
+
+        JLabel labelBandwidth = new JLabel("Band Width");
+        labelBandwidth.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        pNodeControl.add( labelBandwidth );
+        tfBandwidth = new JTextField();
+        pNodeControl.add( tfBandwidth );
+
+        JLabel labelSpreadfactor = new JLabel("Spread Factor");
+        labelSpreadfactor.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        pNodeControl.add( labelSpreadfactor );
+        tfSpreadfactor = new JTextField();
+        pNodeControl.add( tfSpreadfactor );
+
+        JLabel labelChannel = new JLabel("Channel");
+        labelChannel.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        pNodeControl.add( labelChannel );
+        tfChannel = new JTextField();
+        pNodeControl.add( tfChannel );
+
+        JLabel labelPower = new JLabel("Power");
+        labelPower.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        pNodeControl.add( labelPower );
+        tfPower = new JTextField();
+        pNodeControl.add( tfPower );
+
+        JButton btnUpdate = new JButton("Update");
+        btnUpdate.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnUpdate.addActionListener( this );
+        pNodeControl.add( btnUpdate );
+
+        this.add(pNodeControl);
 
         // 右下パネル
         JPanel pCommand = new JPanel();
@@ -192,7 +241,10 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                         if(node == _node) continue;
                         int _r = node.getRange();
                         double minRange = Math.min(r/2.0, _r/2.0);
-                        if(nc.getDistance(node, _node) <= minRange) {
+                        if(
+                            nc.getDistance(node, _node) <= minRange &&
+                            nc.checkConnectivity(node, _node)
+                        ) {
                             int[] _pos = _node.getPosition();
                             buffer.drawLine(pos[0], pos[1], _pos[0], _pos[1]);
                         }
@@ -258,6 +310,23 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 }
                 break;
 
+            // 右中央メニュー
+            case "Update":
+                if(selectNode == null) break;
+                // パラメータセット
+                selectNode.setBandwidth(Integer.parseInt(tfBandwidth.getText()));
+                selectNode.setSpreadfactor(Integer.parseInt(tfSpreadfactor.getText()));
+                selectNode.setChannel(Integer.parseInt(tfChannel.getText()));
+                selectNode.setPower(Integer.parseInt(tfPower.getText()));
+
+                // パラメータ再描画
+                labelOwnid.setText(selectNode.getOwnid());
+                tfBandwidth.setText(String.valueOf(selectNode.getBandwidth()));
+                tfSpreadfactor.setText(String.valueOf(selectNode.getSpreadfactor()));
+                tfChannel.setText(String.valueOf(selectNode.getChannel()));
+                tfPower.setText(String.valueOf(selectNode.getPower()));
+                break;
+
             // 右下メニュー
             case "Send":
                 if(selectNode == null) break;
@@ -274,12 +343,12 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     Node dragNode = null;
     public void mousePressed( MouseEvent e ) {
         e.consume();
-        // ノード移動先
+        // Waypoint 追加
         if(selectNode != null && enableAddPoint) {
             selectNode.addNextPosition(e.getX(), e.getY());
         }
 
-        // ノード削除
+        // Waypoint 削除
         if(enableRemovePoint) {
             selectNode.removeWaypoint(e.getX(), e.getY());
         }
@@ -291,11 +360,27 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         Node node = nodes.get(0);
         dragNode = node;
 
-        // ノード選択
+        // ノード 選択/解除
         if(selectNode != node) {
+            // ノード 選択
             selectNode = node;
+
+            // ノード情報 表示
+            labelOwnid.setText(selectNode.getOwnid());
+            tfBandwidth.setText(String.valueOf(selectNode.getBandwidth()));
+            tfSpreadfactor.setText(String.valueOf(selectNode.getSpreadfactor()));
+            tfChannel.setText(String.valueOf(selectNode.getChannel()));
+            tfPower.setText(String.valueOf(selectNode.getPower()));
         } else {
+            // ノード 選択解除
             selectNode = null;
+
+            // ノード情報 クリア
+            labelOwnid.setText("----");
+            tfBandwidth.setText("");
+            tfSpreadfactor.setText("");
+            tfChannel.setText("");
+            tfPower.setText("");
         }
     }
     public void mouseDragged( MouseEvent e ) {

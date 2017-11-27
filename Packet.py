@@ -91,6 +91,12 @@ class Packet:
     def getTTL(self):
         return self.__ttl
 
+    def decrementTTL(self):
+        self.__ttl -= 1
+        if(self.__ttl <= 0):
+            return False  # 失敗
+        return True  # 成功
+
     """ シーケンス番号 (1Byte: 0-255) """
     __sequenceNo = 0
 
