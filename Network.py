@@ -97,7 +97,7 @@ class Network(Lora):
             パケット転送部
         """
         ownid = self.__config.getOwnid()
-        # NW層自分宛て ではない場合
+        # NW層自分宛てではない AND パケットタイプが通常(0-3)の場合
         if (networkDst != ownid and (packetType in range(4))):
             print("Repeat!!!")
             datalinkDst = self.route.getNextnode(networkDst)
@@ -124,6 +124,7 @@ class Network(Lora):
             if(bufferId == self.__packetBuffer[i][0]):
                 # シーケンス番号チェック
                 if(self.__packetBuffer[i][1] >= seq):
+                    self.__packetBuffer.pop(i)
                     return
                 self.__packetBuffer[i][1] = seq
                 self.__packetBuffer[i][2] = "{0}{1}".format(
