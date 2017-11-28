@@ -293,6 +293,12 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 enableAddPoint = !enableAddPoint;
                 if(enableAddPoint) {
                     btnAddPoint.setForeground(Color.RED);
+
+                    // RemovePointの無効化
+                    if(enableRemovePoint) {
+                        btnRemovePoint.setForeground(Color.BLACK);
+                        enableRemovePoint = false;
+                    }
                 } else {
                     btnAddPoint.setForeground(Color.BLACK);
                 }
@@ -301,6 +307,12 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 enableRemovePoint = !enableRemovePoint;
                 if(enableRemovePoint) {
                     btnRemovePoint.setForeground(Color.RED);
+
+                    // AddPointの無効化
+                    if(enableAddPoint) {
+                        btnAddPoint.setForeground(Color.BLACK);
+                        enableAddPoint = false;
+                    }
                 } else {
                     btnRemovePoint.setForeground(Color.BLACK);
                 }
