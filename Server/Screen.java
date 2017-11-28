@@ -41,12 +41,12 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pMenu.setBackground( new Color(175, 220, 220) );
 
         btnStart = new JButton("Start");
-        btnStart.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnStart.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnStart.addActionListener( this );
         pMenu.add( btnStart );
 
         JButton btnStop = new JButton("---");
-        btnStop.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnStop.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnStop.addActionListener( this );
         pMenu.add( btnStop );
         this.add( pMenu );
@@ -58,31 +58,31 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pControl.setBackground( new Color(175, 220, 220) );
 
         btnRange = new JButton("Range");
-        btnRange.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnRange.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnRange.setForeground(Color.RED);
         btnRange.addActionListener( this );
         pControl.add( btnRange );
 
         btnLine = new JButton("Line");
-        btnLine.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnLine.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnLine.setForeground(Color.RED);
         btnLine.addActionListener( this );
         pControl.add( btnLine );
 
         btnAddPoint = new JButton("AddPoint");
-        btnAddPoint.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnAddPoint.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnAddPoint.setForeground(Color.BLACK);
         btnAddPoint.addActionListener( this );
         pControl.add( btnAddPoint );
 
         btnRemovePoint = new JButton("RemovePoint");
-        btnRemovePoint.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnRemovePoint.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnRemovePoint.setForeground(Color.BLACK);
         btnRemovePoint.addActionListener( this );
         pControl.add( btnRemovePoint );
 
         btnMove = new JButton("Move");
-        btnMove.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnMove.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnMove.setForeground(Color.BLACK);
         btnMove.addActionListener( this );
         pControl.add( btnMove );
@@ -96,44 +96,49 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pNodeControl.setBackground( new Color(175, 220, 220) );
 
         JLabel _labelOwnid = new JLabel("Own ID");
-        _labelOwnid.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        _labelOwnid.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( _labelOwnid );
         labelOwnid = new JLabel("----");
-        labelOwnid.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        labelOwnid.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( labelOwnid );
 
         JLabel labelBandwidth = new JLabel("Band Width");
-        labelBandwidth.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        labelBandwidth.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( labelBandwidth );
         tfBandwidth = new JTextField();
         tfBandwidth.setText("3, 4, 5, 6");
         pNodeControl.add( tfBandwidth );
 
         JLabel labelSpreadfactor = new JLabel("Spread Factor");
-        labelSpreadfactor.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        labelSpreadfactor.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( labelSpreadfactor );
         tfSpreadfactor = new JTextField();
         tfSpreadfactor.setText("7-12");
         pNodeControl.add( tfSpreadfactor );
 
         JLabel labelChannel = new JLabel("Channel");
-        labelChannel.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        labelChannel.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( labelChannel );
         tfChannel = new JTextField();
         tfChannel.setText("1-15, 1-7, 1-5");
         pNodeControl.add( tfChannel );
 
         JLabel labelPower = new JLabel("Power");
-        labelPower.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        labelPower.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( labelPower );
         tfPower = new JTextField();
         tfPower.setText("-4 - 13[dBm]");
         pNodeControl.add( tfPower );
 
-        JButton btnUpdate = new JButton("Update");
-        btnUpdate.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
-        btnUpdate.addActionListener( this );
-        pNodeControl.add( btnUpdate );
+        JButton btnDummy = new JButton("---");
+        btnDummy.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
+        btnDummy.addActionListener( this );
+        pNodeControl.add( btnDummy );
+
+        JButton btnSet = new JButton("Set");
+        btnSet.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
+        btnSet.addActionListener( this );
+        pNodeControl.add( btnSet );
 
         this.add(pNodeControl);
 
@@ -151,12 +156,12 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pCommandChild.setBackground( new Color(175, 220, 220) );
 
         JButton btnSend = new JButton("Send");
-        btnSend.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnSend.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnSend.addActionListener( this );
         pCommandChild.add( btnSend );
 
         JButton btnRecv = new JButton("Recv");
-        btnRecv.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnRecv.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnRecv.addActionListener( this );
         pCommandChild.add( btnRecv );
 
@@ -327,7 +332,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 break;
 
             // 右中央メニュー
-            case "Update":
+            case "Set":
                 if(selectNode == null) break;
                 // パラメータセット
                 selectNode.setBandwidth(Integer.parseInt(tfBandwidth.getText()));
