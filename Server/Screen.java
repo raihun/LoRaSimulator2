@@ -8,6 +8,7 @@ import java.util.Random;
 public class Screen extends JPanel implements MouseListener, MouseMotionListener, ActionListener {
 
     private static Progress progress = null;
+    private static Property property = null;
     private static NodeController nc = null;
     private JPanel pPaint;
     private JButton btnStart;
@@ -22,6 +23,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     private JTextField tfChannel;
     private JTextField tfPower;
     private JTextField tfCommand;
+    private JButton btnAutoPosition;
 
     public Screen() {
         setLayout(null);
@@ -34,7 +36,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pPaint.setBackground( new Color(225, 225, 225) );
         this.add( pPaint );
 
-        // 右上パネル1
+        // 右第1パネル
         JPanel pMenu = new JPanel();
         pMenu.setBounds( 1005, 5, 265, 35 );
         pMenu.setLayout( new GridLayout(1, 2) );
@@ -51,7 +53,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pMenu.add( btnStop );
         this.add( pMenu );
 
-        // 右上パネル2
+        // 右第2パネル
         JPanel pControl = new JPanel();
         pControl.setBounds( 1005, 50, 265, 60 );
         pControl.setLayout( new GridLayout(3, 2) );
@@ -89,7 +91,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
 
         this.add(pControl);
 
-        // 右中央パネル
+        // 右第3パネル
         JPanel pNodeControl = new JPanel();
         pNodeControl.setBounds( 1005, 120, 265, 120);
         pNodeControl.setLayout( new GridLayout(6, 2) );
@@ -142,7 +144,25 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
 
         this.add(pNodeControl);
 
-        // 右下パネル
+        // 右第4パネル
+        JPanel pPosition = new JPanel();
+        pPosition.setBounds( 1005, 250, 265, 20);
+        pPosition.setLayout( new GridLayout(1, 2) );
+        pPosition.setBackground( new Color(175, 220, 220) );
+
+        btnAutoPosition = new JButton("AutoPos");
+        btnAutoPosition.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
+        btnAutoPosition.setForeground(Color.RED);
+        btnAutoPosition.addActionListener( this );
+        pPosition.add( btnAutoPosition );
+        JButton btnSavePosition = new JButton("SavePos");
+        btnSavePosition.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
+        btnSavePosition.addActionListener( this );
+        pPosition.add( btnSavePosition );
+
+        this.add(pPosition);
+
+        // 右第5パネル
         JPanel pCommand = new JPanel();
         pCommand.setBounds( 1005, 610, 265, 80);
         pCommand.setLayout( new GridLayout(2, 1) );
@@ -176,9 +196,13 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     public void setProgress(Progress progress) {
         this.progress = progress;
     }
+    public void setProperty(Property property) {
+        this.property = property;
+    }
 
     private int cnt = 0;
     public void render() {
+        // グラフィック関連
         Image back = createImage(1000, 720);
         Graphics buffer = back.getGraphics();
         buffer.setColor( new Color(225, 225, 225) );
@@ -186,7 +210,12 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         buffer.setColor( Color.black );
         renderNodes(buffer);
         getGraphics().drawImage(back, 0, 0, this);
+
+        // システム関連
         cnt = (cnt + 25) % Integer.MAX_VALUE;
+        if(enableAutoPosition) {
+            property.loadPosition();
+        }
     }
 
     private void renderNodes(Graphics buffer) {
@@ -271,6 +300,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     private Boolean enableAddPoint = false;
     private Boolean enableRemovePoint = false;
     private Boolean enableMove = false;
+    private Boolean enableAutoPosition = true;
     public void actionPerformed( ActionEvent ae ) {
         String buttonName = ae.getActionCommand();
         switch(buttonName) {
@@ -323,7 +353,9 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 }
                 break;
             case "Move":
-                enableMove = !enableMove;
+                if(!enableAutoPosition) {
+                    enableMove = !enableMove;
+                }
                 if(enableMove) {
                     btnMove.setForeground(Color.RED);
                 } else {
@@ -331,7 +363,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 }
                 break;
 
-            // 右中央メニュー
+            // 右第3パネル メニュー
             case "Set":
                 if(selectNode == null) break;
                 // パラメータセット
@@ -348,7 +380,22 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 tfPower.setText(String.valueOf(selectNode.getPower()));
                 break;
 
-            // 右下メニュー
+            // 右第4パネル メニュー
+            case "AutoPos":
+                if(!enableMove) {
+                    enableAutoPosition = !enableAutoPosition;
+                }
+                if(enableAutoPosition) {
+                    btnAutoPosition.setForeground(Color.RED);
+                } else {
+                    btnAutoPosition.setForeground(Color.BLACK);
+                }
+                break;
+            case "SavePos":
+                property.savePosition();
+                break;
+
+            // 右第5パネル メニュー
             case "Send":
                 if(selectNode == null) break;
                 selectNode.sendPacket(tfCommand.getText());
