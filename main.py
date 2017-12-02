@@ -14,8 +14,6 @@ def main(argc, argv):
         config.setOwnid(argv[1])
     lora = Lora()
     network = Network()
-    example1 = Example()
-    # example2 = Example()
     while True:
         try:
             sleep(1.0)

@@ -26,22 +26,7 @@ class Network(Lora):
         return
 
     """ @override """
-    def send(self, data="", dstid="FFFF", ptype=0):
-        # 送信パケット生成
-        packet = Packet()
-        panid = self.__config.getPanid()
-        packet.setPanId(panid)
-        datalinkDst = self.route.getNextnode(dstid)
-        if(datalinkDst is None):
-            datalinkDst = "FFFF"
-        packet.setDatalinkDst(datalinkDst)
-        ownid = self.__config.getOwnid()
-        packet.setDatalinkSrc(ownid)
-        packet.setNetworkDst(datalinkDst)
-        packet.setNetworkSrc(ownid)
-        packet.setPacketType(ptype)
-        packet.setPayload(data)
-
+    def send(self, packet):
         # 送信
         super(Network, self).send(packet.exportPacket())
         return
@@ -73,6 +58,7 @@ class Network(Lora):
                 None,
                 self.send,
                 self.route,
+                self.__config.getPanid(),
                 self.__config.getOwnid()
             )
         )
@@ -164,12 +150,26 @@ class Network(Lora):
 
     """ ルートリクエスト(10秒間隔) """
     @staticmethod
-    def __broadcastThread(self, sendMethod, routeInst, ownid):
+    def __broadcastThread(self, sendMethod, routeInst, panid, ownid):
         while True:
+            # 待機
             r = randrange(100, 200) / 10.0
             sleep(r)
 
+            # Payload生成
             payload = "{0}00".format(ownid)
             payload += routeInst.getRoute(True)
-            sendMethod(payload, "FFFF", 4)
+
+            # 送信パケット生成
+            packet = Packet()
+            packet.setPanId(panid)
+            packet.setDatalinkDst("FFFF")
+            packet.setDatalinkSrc(ownid)
+            packet.setNetworkDst("FFFF")
+            packet.setNetworkSrc(ownid)
+            packet.setPacketType(4)
+            packet.setPayload(payload)
+
+            # 送信
+            sendMethod(packet)
         return
