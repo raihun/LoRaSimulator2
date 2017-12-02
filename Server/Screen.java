@@ -8,6 +8,7 @@ import java.util.Random;
 public class Screen extends JPanel implements MouseListener, MouseMotionListener, ActionListener {
 
     private static Progress progress = null;
+    private static Property property = null;
     private static NodeController nc = null;
     private JPanel pPaint;
     private JButton btnStart;
@@ -22,6 +23,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     private JTextField tfChannel;
     private JTextField tfPower;
     private JTextField tfCommand;
+    private JButton btnAutoPosition;
 
     public Screen() {
         setLayout(null);
@@ -34,106 +36,133 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pPaint.setBackground( new Color(225, 225, 225) );
         this.add( pPaint );
 
-        // 右上パネル1
+        // 右第1パネル
         JPanel pMenu = new JPanel();
         pMenu.setBounds( 1005, 5, 265, 35 );
         pMenu.setLayout( new GridLayout(1, 2) );
         pMenu.setBackground( new Color(175, 220, 220) );
 
         btnStart = new JButton("Start");
-        btnStart.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnStart.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnStart.addActionListener( this );
         pMenu.add( btnStart );
 
         JButton btnStop = new JButton("---");
-        btnStop.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnStop.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnStop.addActionListener( this );
         pMenu.add( btnStop );
         this.add( pMenu );
 
-        // 右上パネル2
+        // 右第2パネル
         JPanel pControl = new JPanel();
         pControl.setBounds( 1005, 50, 265, 60 );
         pControl.setLayout( new GridLayout(3, 2) );
         pControl.setBackground( new Color(175, 220, 220) );
 
         btnRange = new JButton("Range");
-        btnRange.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnRange.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnRange.setForeground(Color.RED);
         btnRange.addActionListener( this );
         pControl.add( btnRange );
 
         btnLine = new JButton("Line");
-        btnLine.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnLine.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnLine.setForeground(Color.RED);
         btnLine.addActionListener( this );
         pControl.add( btnLine );
 
         btnAddPoint = new JButton("AddPoint");
-        btnAddPoint.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnAddPoint.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnAddPoint.setForeground(Color.BLACK);
         btnAddPoint.addActionListener( this );
         pControl.add( btnAddPoint );
 
         btnRemovePoint = new JButton("RemovePoint");
-        btnRemovePoint.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnRemovePoint.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnRemovePoint.setForeground(Color.BLACK);
         btnRemovePoint.addActionListener( this );
         pControl.add( btnRemovePoint );
 
         btnMove = new JButton("Move");
-        btnMove.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnMove.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnMove.setForeground(Color.BLACK);
         btnMove.addActionListener( this );
         pControl.add( btnMove );
 
         this.add(pControl);
 
-        // 右中央パネル
+        // 右第3パネル
         JPanel pNodeControl = new JPanel();
         pNodeControl.setBounds( 1005, 120, 265, 120);
         pNodeControl.setLayout( new GridLayout(6, 2) );
         pNodeControl.setBackground( new Color(175, 220, 220) );
 
         JLabel _labelOwnid = new JLabel("Own ID");
-        _labelOwnid.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        _labelOwnid.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( _labelOwnid );
         labelOwnid = new JLabel("----");
-        labelOwnid.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        labelOwnid.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( labelOwnid );
 
         JLabel labelBandwidth = new JLabel("Band Width");
-        labelBandwidth.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        labelBandwidth.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( labelBandwidth );
         tfBandwidth = new JTextField();
+        tfBandwidth.setText("3, 4, 5, 6");
         pNodeControl.add( tfBandwidth );
 
         JLabel labelSpreadfactor = new JLabel("Spread Factor");
-        labelSpreadfactor.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        labelSpreadfactor.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( labelSpreadfactor );
         tfSpreadfactor = new JTextField();
+        tfSpreadfactor.setText("7-12");
         pNodeControl.add( tfSpreadfactor );
 
         JLabel labelChannel = new JLabel("Channel");
-        labelChannel.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        labelChannel.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( labelChannel );
         tfChannel = new JTextField();
+        tfChannel.setText("1-15, 1-7, 1-5");
         pNodeControl.add( tfChannel );
 
         JLabel labelPower = new JLabel("Power");
-        labelPower.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        labelPower.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         pNodeControl.add( labelPower );
         tfPower = new JTextField();
+        tfPower.setText("-4 - 13[dBm]");
         pNodeControl.add( tfPower );
 
-        JButton btnUpdate = new JButton("Update");
-        btnUpdate.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
-        btnUpdate.addActionListener( this );
-        pNodeControl.add( btnUpdate );
+        JButton btnDummy = new JButton("---");
+        btnDummy.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
+        btnDummy.addActionListener( this );
+        pNodeControl.add( btnDummy );
+
+        JButton btnSet = new JButton("Set");
+        btnSet.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
+        btnSet.addActionListener( this );
+        pNodeControl.add( btnSet );
 
         this.add(pNodeControl);
 
-        // 右下パネル
+        // 右第4パネル
+        JPanel pPosition = new JPanel();
+        pPosition.setBounds( 1005, 250, 265, 20);
+        pPosition.setLayout( new GridLayout(1, 2) );
+        pPosition.setBackground( new Color(175, 220, 220) );
+
+        btnAutoPosition = new JButton("AutoPos");
+        btnAutoPosition.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
+        btnAutoPosition.setForeground(Color.RED);
+        btnAutoPosition.addActionListener( this );
+        pPosition.add( btnAutoPosition );
+        JButton btnSavePosition = new JButton("SavePos");
+        btnSavePosition.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
+        btnSavePosition.addActionListener( this );
+        pPosition.add( btnSavePosition );
+
+        this.add(pPosition);
+
+        // 右第5パネル
         JPanel pCommand = new JPanel();
         pCommand.setBounds( 1005, 610, 265, 80);
         pCommand.setLayout( new GridLayout(2, 1) );
@@ -147,12 +176,12 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pCommandChild.setBackground( new Color(175, 220, 220) );
 
         JButton btnSend = new JButton("Send");
-        btnSend.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnSend.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnSend.addActionListener( this );
         pCommandChild.add( btnSend );
 
         JButton btnRecv = new JButton("Recv");
-        btnRecv.setFont( new Font("MS ゴシック", Font.BOLD, 18) );
+        btnRecv.setFont( new Font("MS ゴシック", Font.BOLD, 16) );
         btnRecv.addActionListener( this );
         pCommandChild.add( btnRecv );
 
@@ -167,9 +196,13 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     public void setProgress(Progress progress) {
         this.progress = progress;
     }
+    public void setProperty(Property property) {
+        this.property = property;
+    }
 
     private int cnt = 0;
     public void render() {
+        // グラフィック関連
         Image back = createImage(1000, 720);
         Graphics buffer = back.getGraphics();
         buffer.setColor( new Color(225, 225, 225) );
@@ -177,7 +210,12 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         buffer.setColor( Color.black );
         renderNodes(buffer);
         getGraphics().drawImage(back, 0, 0, this);
+
+        // システム関連
         cnt = (cnt + 25) % Integer.MAX_VALUE;
+        if(enableAutoPosition) {
+            property.loadPosition();
+        }
     }
 
     private void renderNodes(Graphics buffer) {
@@ -262,6 +300,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
     private Boolean enableAddPoint = false;
     private Boolean enableRemovePoint = false;
     private Boolean enableMove = false;
+    private Boolean enableAutoPosition = true;
     public void actionPerformed( ActionEvent ae ) {
         String buttonName = ae.getActionCommand();
         switch(buttonName) {
@@ -289,6 +328,12 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 enableAddPoint = !enableAddPoint;
                 if(enableAddPoint) {
                     btnAddPoint.setForeground(Color.RED);
+
+                    // RemovePointの無効化
+                    if(enableRemovePoint) {
+                        btnRemovePoint.setForeground(Color.BLACK);
+                        enableRemovePoint = false;
+                    }
                 } else {
                     btnAddPoint.setForeground(Color.BLACK);
                 }
@@ -297,12 +342,20 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 enableRemovePoint = !enableRemovePoint;
                 if(enableRemovePoint) {
                     btnRemovePoint.setForeground(Color.RED);
+
+                    // AddPointの無効化
+                    if(enableAddPoint) {
+                        btnAddPoint.setForeground(Color.BLACK);
+                        enableAddPoint = false;
+                    }
                 } else {
                     btnRemovePoint.setForeground(Color.BLACK);
                 }
                 break;
             case "Move":
-                enableMove = !enableMove;
+                if(!enableAutoPosition) {
+                    enableMove = !enableMove;
+                }
                 if(enableMove) {
                     btnMove.setForeground(Color.RED);
                 } else {
@@ -310,8 +363,8 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 }
                 break;
 
-            // 右中央メニュー
-            case "Update":
+            // 右第3パネル メニュー
+            case "Set":
                 if(selectNode == null) break;
                 // パラメータセット
                 selectNode.setBandwidth(Integer.parseInt(tfBandwidth.getText()));
@@ -327,7 +380,22 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
                 tfPower.setText(String.valueOf(selectNode.getPower()));
                 break;
 
-            // 右下メニュー
+            // 右第4パネル メニュー
+            case "AutoPos":
+                if(!enableMove) {
+                    enableAutoPosition = !enableAutoPosition;
+                }
+                if(enableAutoPosition) {
+                    btnAutoPosition.setForeground(Color.RED);
+                } else {
+                    btnAutoPosition.setForeground(Color.BLACK);
+                }
+                break;
+            case "SavePos":
+                property.savePosition();
+                break;
+
+            // 右第5パネル メニュー
             case "Send":
                 if(selectNode == null) break;
                 selectNode.sendPacket(tfCommand.getText());
@@ -377,10 +445,10 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
 
             // ノード情報 クリア
             labelOwnid.setText("----");
-            tfBandwidth.setText("");
-            tfSpreadfactor.setText("");
-            tfChannel.setText("");
-            tfPower.setText("");
+            tfBandwidth.setText("3, 4, 5, 6");
+            tfSpreadfactor.setText("7-12");
+            tfChannel.setText("1-15, 1-7, 1-5");
+            tfPower.setText("-4 - 13[dBm]");
         }
     }
     public void mouseDragged( MouseEvent e ) {
