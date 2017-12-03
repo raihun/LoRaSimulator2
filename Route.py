@@ -21,7 +21,7 @@ class Route:
     __INDEX_ALIVE = 3
     __INDEX_RSSI = 4
 
-    __ALIVE_TIME = 60
+    __ALIVE_TIME = 120
     __routeList = []
 
     def __init__(self):
