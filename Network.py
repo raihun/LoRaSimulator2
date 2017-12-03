@@ -85,14 +85,13 @@ class Network(Lora):
         ownid = self.__config.getOwnid()
         # NW層自分宛てではない AND パケットタイプが通常(0-3)の場合
         if (networkDst != ownid and (packetType in range(4))):
-            print("Repeat!!!")
             datalinkDst = self.route.getNextnode(networkDst)
             if(datalinkDst is None):
                 return
             packet.setDatalinkDst(datalinkDst)
             packet.setDatalinkSrc(ownid)
             if(packet.decrementTTL()):  # TTL減算チェック
-                super(Network, self).send(packet.exportPacket(False))
+                super(Network, self).send(packet.transferPacket())
             return
 
         """

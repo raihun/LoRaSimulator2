@@ -158,12 +158,8 @@ class Packet:
         self.setPayload(data[24:])
         return
 
-    """
-        Packet() -> 生パケット
-
-        autoPacketType : 自動で最終パケットにFINフラグを付与する or しない
-    """
-    def exportPacket(self, autoPacketType=True):
+    """ Packet() -> 生パケット """
+    def exportPacket(self):
         data = []
         splitPayload = self.__split_str(self.getPayload(), 38)
         size = len(splitPayload) - 1
@@ -174,9 +170,9 @@ class Packet:
             datum += self.getDatalinkDst()
             datum += self.getNetworkDst()
             datum += self.getNetworkSrc()
-            if(autoPacketType and i >= size and self.getPacketType() == 0):
+            if(i >= size and self.getPacketType() == 0):
                 self.setPacketType(2)
-            if(autoPacketType and i >= size and self.getPacketType() == 4):
+            if(i >= size and self.getPacketType() == 4):
                 self.setPacketType(6)
             datum += "{0:02X}".format(self.mergeByte())
             datum += "{0:02X}".format(i % 0xFF)
@@ -188,6 +184,18 @@ class Packet:
                 break
         print("[Raw packetS] {0}".format(data))
         return data
+
+    """ Packet() -> 生パケット (転送用) """
+    def transferPacket(self):
+        datum = ""
+        datum += self.getPanId()
+        datum += self.getDatalinkDst()
+        datum += self.getNetworkDst()
+        datum += self.getNetworkSrc()
+        datum += "{0:02X}".format(self.mergeByte())
+        datum += "{0:02X}".format(self.getSequenceNo())
+        datum += self.getPayload()
+        return datum
 
     """ 文字列を指定バイト数ごとに分割 """
     def __split_str(self, s, n):
