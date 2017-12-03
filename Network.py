@@ -92,7 +92,7 @@ class Network(Lora):
             packet.setDatalinkDst(datalinkDst)
             packet.setDatalinkSrc(ownid)
             if(packet.decrementTTL()):  # TTL減算チェック
-                super(Network, self).send(packet.exportPacket())
+                super(Network, self).send(packet.exportPacket(False))
             return
 
         """

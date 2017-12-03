@@ -158,8 +158,12 @@ class Packet:
         self.setPayload(data[24:])
         return
 
-    """ Packet() -> 生パケット """
-    def exportPacket(self):
+    """
+        Packet() -> 生パケット
+
+        autoPacketType : 自動で最終パケットにFINフラグを付与する or しない
+    """
+    def exportPacket(self, autoPacketType=True):
         data = []
         splitPayload = self.__split_str(self.getPayload(), 38)
         size = len(splitPayload) - 1
@@ -170,9 +174,9 @@ class Packet:
             datum += self.getDatalinkDst()
             datum += self.getNetworkDst()
             datum += self.getNetworkSrc()
-            if(i >= size and self.getPacketType() is 0):
+            if(autoPacketType and i >= size and self.getPacketType() == 0):
                 self.setPacketType(2)
-            if(i >= size and self.getPacketType() is 4):
+            if(autoPacketType and i >= size and self.getPacketType() == 4):
                 self.setPacketType(6)
             datum += "{0:02X}".format(self.mergeByte())
             datum += "{0:02X}".format(i % 0xFF)
