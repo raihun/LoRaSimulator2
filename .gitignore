@@ -1,5 +1,5 @@
-TestServer/
 __pycache__/
 logs/
 *.class
+*.properties
 test*.py
