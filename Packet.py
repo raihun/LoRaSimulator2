@@ -135,7 +135,7 @@ class Packet:
 
     """ 生パケット -> Packet() """
     def importPacket(self, data):
-        print("[Raw packetR] {0}".format(data))
+        # print("[Raw packetR] {0}".format(data))
         # フレーム長 未満
         if(len(data) < 24):
             return
@@ -182,7 +182,7 @@ class Packet:
             i += 1
             if(i > size):
                 break
-        print("[Raw packetS] {0}".format(data))
+        # print("[Raw packetS] {0}".format(data))
         return data
 
     """ Packet() -> 生パケット (転送用) """
