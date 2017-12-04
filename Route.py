@@ -114,9 +114,11 @@ class Route:
         self.__routeList.extend([[table[0:4], datalinkDst, 1 + int(
             table[4:6], 16), self.__ALIVE_TIME, rssi] for table in recvTables])
         # print(self.__routeList)
+        """
         print("------------------------------")
         for data in self.getRoute(False):
             print("{0} {1} {2} {3}".format(data[0], self.getNextnode(data[0]), data[1], data[2]))
+        """
         return
 
     def getRoute(self, resultType=False):
