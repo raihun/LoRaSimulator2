@@ -78,11 +78,28 @@ class Network(Lora):
 
     """ @override """
     def send(self, packet, transfer=False):
+        # ACKパケット送信時
         if (packet.getPacketType() == 1):
             super(Network, self).send(packet.transferPacket())
             return
+
+        # ルーティング系パケット 送信時
         if (packet.getPacketType() in [4, 5, 6]):
             super(Network, self).send(packet.exportPacket())
+            return
+
+        # 通常パケット
+        if(not transfer):
+            rawPackets = packet.exportPacket()
+            for p in rawPackets:
+                splitPacket = Packet()
+                splitPacket.importPacket(p)
+                bufferId = "{0}{1}{2:02X}".format(
+                    splitPacket.getNetworkDst(),
+                    splitPacket.getNetworkSrc(),
+                    splitPacket.getSequenceNo()
+                )
+                Network.__sendPacketBuffer.append([bufferId, splitPacket])
             return
 
         bufferId = "{0}{1}{2:02X}".format(
@@ -90,7 +107,7 @@ class Network(Lora):
             packet.getNetworkSrc(),
             packet.getSequenceNo()
         )
-        Network.__sendPacketBuffer.append([bufferId, packet, transfer])
+        Network.__sendPacketBuffer.append([bufferId, packet])
         return
 
     """ Loraから来るメッセージの2次フィルタリング """
@@ -184,6 +201,8 @@ class Network(Lora):
                 payloadBuffer = self.__recvPacketBuffer[i][2]
                 self.__recvPacketBuffer.pop(i)
                 break
+        if(payloadBuffer == ""):
+            return
         newMsg = msg[:24] + payloadBuffer
 
         """
@@ -219,13 +238,7 @@ class Network(Lora):
                 continue
 
             # 送信
-            packet = sendPacketBuffer[0]
-
-            # 送信
-            if(packet[2]):
-                superSendMethod(packet[1].transferPacket())
-            else:
-                superSendMethod(packet[1].exportPacket())
+            superSendMethod(sendPacketBuffer[0][1].transferPacket())
         return
 
     """ ルートリクエスト(10秒間隔) """
