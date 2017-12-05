@@ -1,11 +1,12 @@
 # -*- encoding:utf-8 -*-
+from collections import deque
 from Config import Config
 from Lora import Lora
 from Packet import Packet
 from random import randrange
 from Route import Route
 from threading import Thread
-from time import sleep
+from time import sleep, time
 
 
 class Network(Lora):
@@ -19,38 +20,11 @@ class Network(Lora):
         self.__setting()
         return
 
-    """ @override """
-    def addRecvlistener(self, recvEvent):
-        global gRecvListeners
-        gRecvListeners.append(recvEvent)
-        return
-
-    """ @override """
-    def send(self, data="", dstid="FFFF", ptype=0):
-        # 送信パケット生成
-        packet = Packet()
-        panid = self.__config.getPanid()
-        packet.setPanId(panid)
-        datalinkDst = self.route.getNextnode(dstid)
-        if(datalinkDst is None):
-            datalinkDst = "FFFF"
-        packet.setDatalinkDst(datalinkDst)
-        ownid = self.__config.getOwnid()
-        packet.setDatalinkSrc(ownid)
-        packet.setNetworkDst(datalinkDst)
-        packet.setNetworkSrc(ownid)
-        packet.setPacketType(ptype)
-        packet.setPayload(data)
-
-        # 送信
-        super(Network, self).send(packet.exportPacket())
-        return
-
     """ 初回インスタンス化時のみ有効となる設定処理 """
     def __setting(self):
         # 初回起動チェック
         try:
-            if(Network.__isSetting):
+            if Network.__isSetting:
                 return
         except AttributeError:
             Network.__isSetting = True
@@ -61,12 +35,27 @@ class Network(Lora):
 
         # Route
         self.route = Route()
-        self.__packetBuffer = []
+
+        # other
+        Network.__sendPacketBuffer = deque()
+        self.__recvPacketBuffer = []
 
         # LoraのReceive Listenersに追加
         super(Network, self).addRecvlistener(self.recvEvent)
 
-        # broadcast Thread
+        # Send thread
+        self.__thSend = Thread(
+            target=self.__sendThread,
+            args=(
+                None,
+                super(Network, self).send,
+                Network.__sendPacketBuffer
+            )
+        )
+        self.__thSend.setDaemon(True)
+        self.__thSend.start()
+
+        # Broadcast Thread
         self.__thBroadcast = Thread(
             target=self.__broadcastThread,
             args=(
@@ -80,39 +69,101 @@ class Network(Lora):
         self.__thBroadcast.start()
         return
 
+    """ @override """
+    def addRecvlistener(self, recvEvent):
+        global gRecvListeners
+        gRecvListeners.append(recvEvent)
+        return
+
+    """ @override """
+    def send(self, packet, transfer=False):
+        # ACKパケット送信時
+        if packet.getPacketType() == 1:
+            super(Network, self).send(packet.transferPacket())
+            return
+
+        # ルーティング系パケット 送信時
+        if packet.getPacketType() in [4, 5, 6]:
+            super(Network, self).send(packet.exportPacket())
+            return
+
+        # 通常パケット
+        if not transfer:
+            for raw in packet.exportPacket():
+                bufferId = "{0}{1}{2}".format(
+                    packet.getNetworkDst(),
+                    packet.getNetworkSrc(),
+                    raw[18:20]
+                )
+                Network.__sendPacketBuffer.append([bufferId, raw, True])
+            return
+
+        bufferId = "{0}{1}{2:02X}".format(
+            packet.getNetworkDst(),
+            packet.getNetworkSrc(),
+            packet.getSequenceNo()
+        )
+        Network.__sendPacketBuffer.append([bufferId, packet, False])
+        return
+
     """ Loraから来るメッセージの2次フィルタリング """
     def recvEvent(self, msg):
         # パケットサイズエラーチェック
-        if(len(msg) > 62):
+        if len(msg) > 62:
             print("!!! ERROR (Java OutputStream) !!!")
             return
 
         # 受信パケット
+        ownid = self.__config.getOwnid()
         packet = Packet()
         packet.importPacket(msg)
         packetType = packet.getPacketType()
+        datalinkSrc = packet.getDatalinkSrc()
         networkDst = packet.getNetworkDst()
+
+        """
+            ACKパケット
+        """
+        # 生成・送信
+        if packetType in [0, 2]:
+            ackPacket = Packet()
+            ackPacket.importPacket(msg)
+            ackPacket.setDatalinkDst(datalinkSrc)
+            ackPacket.setDatalinkSrc(ownid)
+            ackPacket.setPacketType(1)
+            self.send(ackPacket, True)
+
+        # 受信
+        if packetType == 1:
+            bufferId = "{0}{1}{2:02X}".format(
+                packet.getNetworkDst(),
+                packet.getNetworkSrc(),
+                packet.getSequenceNo()
+            )
+            if not len(Network.__sendPacketBuffer):
+                return
+            if Network.__sendPacketBuffer[0][0] == bufferId:
+                Network.__sendPacketBuffer.popleft()
+            return
 
         """
             パケット転送部
         """
-        ownid = self.__config.getOwnid()
-        # NW層自分宛てではない AND パケットタイプが通常(0-3)の場合
-        if (networkDst != ownid and (packetType in range(4))):
-            print("Repeat!!!")
+        # NW層自分宛てではない AND パケットタイプが通常(0, 2)の場合
+        if networkDst != ownid and (packetType in [0, 2]):
             datalinkDst = self.route.getNextnode(networkDst)
-            if(datalinkDst is None):
+            if datalinkDst is None:
                 return
             packet.setDatalinkDst(datalinkDst)
             packet.setDatalinkSrc(ownid)
-            if(packet.decrementTTL()):  # TTL減算チェック
-                super(Network, self).send(packet.exportPacket())
+            if packet.decrementTTL():  # TTL減算チェック
+                self.send(packet, True)
             return
 
         """
             パケット結合部
         """
-        # packetBuffer追加
+        # recvPacketBuffer追加
         bufferId = "{0}{1}".format(
             packet.getNetworkDst(),
             packet.getNetworkSrc()
@@ -120,21 +171,20 @@ class Network(Lora):
         seq = packet.getSequenceNo()
 
         findBuffer = False
-        for i in range(len(self.__packetBuffer)):
-            if(bufferId == self.__packetBuffer[i][0]):
+        for i in range(len(self.__recvPacketBuffer)):
+            if bufferId == self.__recvPacketBuffer[i][0]:
                 # シーケンス番号チェック
-                if(self.__packetBuffer[i][1] >= seq):
-                    self.__packetBuffer.pop(i)
+                if self.__recvPacketBuffer[i][1] >= seq:
+                    self.__recvPacketBuffer.pop(i)
                     return
-                self.__packetBuffer[i][1] = seq
-                self.__packetBuffer[i][2] = "{0}{1}".format(
-                    self.__packetBuffer[i][2],
-                    packet.getPayload()
-                )
+                self.__recvPacketBuffer[i][1] = seq
+                self.__recvPacketBuffer[i][2] += packet.getPayload()
                 findBuffer = True
                 break
-        if(not findBuffer and seq == 0):
-            self.__packetBuffer.append([bufferId, seq, packet.getPayload()])
+        if not findBuffer and seq == 0:
+            self.__recvPacketBuffer.append(
+                [bufferId, seq, packet.getPayload()]
+            )
 
         # packetTypeチェック (FINの場合、メッセージ転送へ)
         if not (packetType in [2, 6]):
@@ -142,18 +192,22 @@ class Network(Lora):
 
         # パケット結合
         payloadBuffer = ""
-        for i in range(len(self.__packetBuffer)):
-            if(bufferId == self.__packetBuffer[i][0]):
-                payloadBuffer = self.__packetBuffer[i][2]
-                self.__packetBuffer.pop(i)
+        for i in range(len(self.__recvPacketBuffer)):
+            if bufferId == self.__recvPacketBuffer[i][0]:
+                payloadBuffer = self.__recvPacketBuffer[i][2]
+                self.__recvPacketBuffer.pop(i)
                 break
+        if payloadBuffer == "":
+            return
         newMsg = msg[:24] + payloadBuffer
 
         """
             メッセージ転送
         """
+        print("Receive: ", newMsg)
+
         # Routeへ転送
-        if(packetType == 6):
+        if packetType == 6:
             self.route.putRoute(newMsg)
 
         # メッセージ転送
@@ -162,14 +216,51 @@ class Network(Lora):
             recvEvent(newMsg)
         return
 
+    """ 送信待機スレッド """
+    @staticmethod
+    def __sendThread(self, superSendMethod, sendPacketBuffer):
+        t = time()
+        while True:
+            # カウントダウン
+            if time() - t >= 1.0:
+                t = time()
+            else:
+                sleep(0.01)
+                continue
+
+            # 送信待機
+            if not len(sendPacketBuffer):
+                sleep(0.01)
+                continue
+
+            # 送信
+            if sendPacketBuffer[0][2]:
+                superSendMethod(sendPacketBuffer[0][1])
+            else:
+                superSendMethod(sendPacketBuffer[0][1].transferPacket())
+        return
+
     """ ルートリクエスト(10秒間隔) """
     @staticmethod
     def __broadcastThread(self, sendMethod, routeInst, ownid):
         while True:
-            r = randrange(100, 200) / 10.0
+            # 待機
+            r = randrange(200, 300) / 10.0
             sleep(r)
 
+            # Payload生成
             payload = "{0}00".format(ownid)
             payload += routeInst.getRoute(True)
-            sendMethod(payload, "FFFF", 4)
+
+            # 送信パケット生成
+            packet = Packet()
+            packet.setDatalinkDst("FFFF")
+            packet.setDatalinkSrc(ownid)
+            packet.setNetworkDst("FFFF")
+            packet.setNetworkSrc(ownid)
+            packet.setPacketType(4)
+            packet.setPayload(payload)
+
+            # 送信
+            sendMethod(packet)
         return

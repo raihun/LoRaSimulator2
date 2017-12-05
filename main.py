@@ -9,13 +9,12 @@ from Lora import Lora
 
 def main(argc, argv):
     config = Config()
-    if(argc > 1):
+    if argc > 1:
         print("[Start] Own-ID:{0}".format(argv[1]))
         config.setOwnid(argv[1])
     lora = Lora()
     network = Network()
-    example1 = Example()
-    # example2 = Example()
+    # example = Example()
     while True:
         try:
             sleep(1.0)
