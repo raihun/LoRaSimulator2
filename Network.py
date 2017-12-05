@@ -154,7 +154,7 @@ class Network(Lora):
         # NW層自分宛てではない AND パケットタイプが通常(0, 2)の場合
         if networkDst != ownid and (packetType in [0, 2]):
             datalinkDst = self.route.getNextnode(networkDst)
-            if datalinkDst == None:
+            if datalinkDst is None:
                 return
             packet.setDatalinkDst(datalinkDst)
             packet.setDatalinkSrc(ownid)
