@@ -90,16 +90,13 @@ class Network(Lora):
 
         # 通常パケット
         if(not transfer):
-            rawPackets = packet.exportPacket()
-            for p in rawPackets:
-                splitPacket = Packet()
-                splitPacket.importPacket(p)
-                bufferId = "{0}{1}{2:02X}".format(
-                    splitPacket.getNetworkDst(),
-                    splitPacket.getNetworkSrc(),
-                    splitPacket.getSequenceNo()
+            for raw in packet.exportPacket():
+                bufferId = "{0}{1}{2}".format(
+                    packet.getNetworkDst(),
+                    packet.getNetworkSrc(),
+                    raw[18:20]
                 )
-                Network.__sendPacketBuffer.append([bufferId, splitPacket])
+                Network.__sendPacketBuffer.append([bufferId, raw, True])
             return
 
         bufferId = "{0}{1}{2:02X}".format(
@@ -107,7 +104,7 @@ class Network(Lora):
             packet.getNetworkSrc(),
             packet.getSequenceNo()
         )
-        Network.__sendPacketBuffer.append([bufferId, packet])
+        Network.__sendPacketBuffer.append([bufferId, packet, False])
         return
 
     """ Loraから来るメッセージの2次フィルタリング """
@@ -238,7 +235,10 @@ class Network(Lora):
                 continue
 
             # 送信
-            superSendMethod(sendPacketBuffer[0][1].transferPacket())
+            if(sendPacketBuffer[0][2]):
+                superSendMethod(sendPacketBuffer[0][1])
+            else:
+                superSendMethod(sendPacketBuffer[0][1].transferPacket())
         return
 
     """ ルートリクエスト(10秒間隔) """
