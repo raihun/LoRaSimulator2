@@ -45,7 +45,7 @@ class Route:
         selectHopsList = [nextDst[self.__INDEX_HOP] for nextDst in nextDstList]
 
         # 最小HOP数がMAXになってしまった場合
-        if (min(selectHopsList) >= 255):
+        if min(selectHopsList) >= 255:
             return None
 
         return nextDstList[selectHopsList.index(min(selectHopsList))][1]
@@ -93,7 +93,7 @@ class Route:
         # ネットワーク層宛先IDが自分宛ての場合、不要な情報のため除外する
         recvTables = []
         for i in range(len(_recvTables)):
-            if(_recvTables[i][:4] != self.__config.getOwnid()):
+            if _recvTables[i][:4] != self.__config.getOwnid():
                 recvTables.append(_recvTables[i])
 
         for i in range(len(self.__routeList)):
@@ -113,7 +113,6 @@ class Route:
 
         self.__routeList.extend([[table[0:4], datalinkDst, 1 + int(
             table[4:6], 16), self.__ALIVE_TIME, rssi] for table in recvTables])
-        # print(self.__routeList)
         """
         print("------------------------------")
         for data in self.getRoute(False):
@@ -134,22 +133,22 @@ class Route:
             findFlag = False
             for j in range(len(resultTables)):
                 # HOP数が同じ場合、RSSI値によって判断
-                if(resultTables[j][0] == nwDst and resultTables[j][1] == hop):
-                    if(resultTables[j][2] < rssi):
+                if resultTables[j][0] == nwDst and resultTables[j][1] == hop:
+                    if resultTables[j][2] < rssi:
                         resultTables[j][1] = hop
                         resultTables[j][2] = rssi
                     findFlag = True
                 # HOP数が少ない場合、上書き
-                elif(resultTables[j][0] == nwDst and resultTables[j][1] > hop):
+                elif resultTables[j][0] == nwDst and resultTables[j][1] > hop:
                     resultTables[j][1] = hop
                     findFlag = True
                 # HOP数が多い場合でも、フラグを立ててresultTablesへの追加を防ぐ
-                elif(resultTables[j][0] == nwDst):
+                elif resultTables[j][0] == nwDst:
                     findFlag = True
-            if(not findFlag):
+            if not findFlag:
                 resultTables.append([nwDst, hop, rssi])
 
-        if(not resultType):
+        if not resultType:
             return resultTables
 
         # payload部作成

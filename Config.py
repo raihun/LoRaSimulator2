@@ -13,43 +13,43 @@ class Config:
 
     def getSimulator(self):
         simulator = Config.__config["General"]["Simulator"]
-        if(simulator == ""):
+        if simulator == "":
             simulator = "false"
         return simulator
 
     def getDevicename(self):
         devicename = Config.__config["Device"]["Name"]
-        if(devicename == ""):
+        if devicename == "":
             devicename = "/dev/tty.USB0"
         return devicename
 
     def getBaudrate(self):
         baudrate = Config.__config["Device"]["Baudrate"]
-        if(baudrate == ""):
+        if baudrate == "":
             baudrate = "9600"
         return baudrate
 
     def getBandwidth(self):
         bandwidth = Config.__config["LoRa"]["Bandwidth"]
-        if(bandwidth == ""):
+        if bandwidth == "":
             bandwidth = "4"  # 3, 4, 5, 6
         return bandwidth
 
     def getSpreadingfactor(self):
         spreadingfactor = Config.__config["LoRa"]["Spreadingfactor"]
-        if(spreadingfactor == ""):
+        if spreadingfactor == "":
             spreadingfactor = "7"  # 7-12
         return spreadingfactor
 
     def getChannel(self):
         channel = Config.__config["LoRa"]["Channel"]
-        if(channel == ""):
+        if channel == "":
             channel = "1"
         return channel
 
     def getPanid(self):
         panid = Config.__config["LoRa"]["Panid"]
-        if(panid == ""):
+        if panid == "":
             panid = "0001"
         return panid
 
@@ -59,31 +59,31 @@ class Config:
 
     def getOwnid(self):
         ownid = Config.__config["LoRa"]["Ownid"]
-        if(ownid == ""):
+        if ownid == "":
             ownid = "0001"
         return ownid
 
     def getPower(self):
         power = Config.__config["LoRa"]["Power"]
-        if(power == ""):
+        if power == "":
             power = "13"
         return power
 
     def getHost(self):
         host = Config.__config["Simulator"]["Host"]
-        if(host == ""):
+        if host == "":
             host = "127.0.0.1"
         return host
 
     def getPort(self):
         host = Config.__config["Simulator"]["Port"]
-        if(host == ""):
+        if host == "":
             host = "25561"
         return host
 
     def getSimulatorDebug(self):
         debug = Config.__config["Simulator"]["Debug"]
-        if(debug == ""):
+        if debug == "":
             debug = "false"
         return debug
 
@@ -91,7 +91,7 @@ class Config:
     def __readConfig(self):
         # 初回インスタンス化チェック
         try:
-            if(Config.__isFisrtread):
+            if Config.__isFisrtread:
                 return
         except AttributeError:
             Config.__isFisrtread = True
@@ -99,7 +99,7 @@ class Config:
         # 設定読み込み
         Config.__config = ConfigParser()
 
-        if(not exists(self.__filename)):
+        if not exists(self.__filename):
             # General
             Config.__config["General"] = {}
             Config.__config["General"]["Simulator"] = "false"

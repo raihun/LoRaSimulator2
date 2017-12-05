@@ -26,7 +26,7 @@ class Lora:
         文字列, 文字列配列 両方対応
     """
     def send(self, data):
-        if(type(data) == list):
+        if type(data) == list:
             for datum in data:
                 Lora.sendMessages.append(datum)
         else:
@@ -37,20 +37,18 @@ class Lora:
     def __connect(self):
         # 初回起動チェック
         try:
-            if(Lora.__isConnect):
+            if Lora.__isConnect:
                 return
         except AttributeError:
             Lora.__isConnect = True
             Lora.__isStart = False
             Lora.__isLock = False
 
-        # Get simulator mode
-        mode = self.__config.getSimulator().strip().lower()
-
         # Connect device
+        mode = self.__config.getSimulator().strip().lower()
         devicename = self.__config.getDevicename()
         baudrate = self.__config.getBaudrate()
-        if(mode in "true"):
+        if mode in "true":
             Lora.device = Simulator(devicename, int(baudrate))
         else:
             try:
@@ -99,20 +97,20 @@ class Lora:
     def __sendThread(self, device, sendMessages):
         while True:
             # 送信待機
-            if(len(sendMessages) <= 0):
+            if len(sendMessages) <= 0:
                 sleep(0.01)
                 continue
 
             # ロック時
             t = time()
             while(Lora.__isLock):
-                if(time() - t > 10.0):  # タイムアウト
+                if time() - t > 10.0:  # タイムアウト
                     break
                 sleep(0.01)
 
             # 送信待機メッセージキューからデキュー
             msg = sendMessages.popleft()
-            if(msg is ""):
+            if msg == "":
                 continue
 
             # メッセージ送信
@@ -121,13 +119,13 @@ class Lora:
             device.write(cmd)
 
             # コマンド間隔
-            if(Lora.__isStart):
+            if Lora.__isStart:
                 Lora.__isLock = True
             else:
                 sleep(0.1)  # 設定時
 
             # スタート検知
-            if(msg is "z"):
+            if msg == "z":
                 Lora.__isStart = True
         return
 
@@ -137,7 +135,7 @@ class Lora:
         lorafilter = LoraFilter()
         while True:
             # 受信待機
-            if(device.inWaiting() <= 0):
+            if device.inWaiting() <= 0:
                 sleep(0.01)
                 continue
 
@@ -148,12 +146,12 @@ class Lora:
                 continue
 
             # ロック解除
-            if(line == "OK" or line.find("NG") >= 0):
+            if line == "OK" or line.find("NG") >= 0:
                 Lora.__isLock = False
 
             # フィルタリング
             line = lorafilter.recvFilter(line)
-            if(line is None):
+            if line == None:
                 continue
 
             # メッセージ転送

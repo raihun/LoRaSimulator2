@@ -28,10 +28,7 @@ class Example:
             packet.setDatalinkSrc("0006")
             packet.setNetworkDst("0008")
             packet.setNetworkSrc("0006")
-            payload = ""
-            for i in range(120):
-                payload += "{0:02X}".format(i)
-            packet.setPayload(payload)
+            packet.setPayload("__HELLO__")
             network.send(packet)
         return
 
