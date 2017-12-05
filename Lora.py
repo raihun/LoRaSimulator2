@@ -97,7 +97,7 @@ class Lora:
     def __sendThread(self, device, sendMessages):
         while True:
             # 送信待機
-            if len(sendMessages) <= 0:
+            if not len(sendMessages):
                 sleep(0.01)
                 continue
 

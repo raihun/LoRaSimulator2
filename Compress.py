@@ -37,9 +37,9 @@ class Compress:
                 r.append(d[i])
                 continue
             c = ord(d[i].lower())
-            if ord('0') <= c and c <= ord('9'):
+            if ord('0') <= c <= ord('9'):
                 r.append(c - ord('0'))
-            elif ord('a') <= c and c <= ord('z'):
+            elif ord('a') <= c <= ord('z'):
                 r.append(c - ord('a') + 0xA)
         return r
 

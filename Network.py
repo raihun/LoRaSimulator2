@@ -62,7 +62,6 @@ class Network(Lora):
                 None,
                 self.send,
                 self.route,
-                self.__config.getPanid(),
                 self.__config.getOwnid()
             )
         )
@@ -129,7 +128,6 @@ class Network(Lora):
         if packetType in [0, 2]:
             ackPacket = Packet()
             ackPacket.importPacket(msg)
-            ackPacket.setPanId(self.__config.getPanid())
             ackPacket.setDatalinkDst(datalinkSrc)
             ackPacket.setDatalinkSrc(ownid)
             ackPacket.setPacketType(1)
@@ -142,7 +140,7 @@ class Network(Lora):
                 packet.getNetworkSrc(),
                 packet.getSequenceNo()
             )
-            if len(Network.__sendPacketBuffer) <= 0:
+            if not len(Network.__sendPacketBuffer):
                 return
             if Network.__sendPacketBuffer[0][0] == bufferId:
                 Network.__sendPacketBuffer.popleft()
@@ -231,7 +229,7 @@ class Network(Lora):
                 continue
 
             # 送信待機
-            if len(sendPacketBuffer) <= 0:
+            if not len(sendPacketBuffer):
                 sleep(0.01)
                 continue
 
@@ -244,7 +242,7 @@ class Network(Lora):
 
     """ ルートリクエスト(10秒間隔) """
     @staticmethod
-    def __broadcastThread(self, sendMethod, routeInst, panid, ownid):
+    def __broadcastThread(self, sendMethod, routeInst, ownid):
         while True:
             # 待機
             r = randrange(200, 300) / 10.0
@@ -256,7 +254,6 @@ class Network(Lora):
 
             # 送信パケット生成
             packet = Packet()
-            packet.setPanId(panid)
             packet.setDatalinkDst("FFFF")
             packet.setDatalinkSrc(ownid)
             packet.setNetworkDst("FFFF")
