@@ -1,4 +1,5 @@
 # -*- encoding:utf-8 -*-
+from Config import Config
 
 
 class Packet:
@@ -11,6 +12,8 @@ class Packet:
         +--------+--------+--------+--------+--------+------+--------+--------+
     """
     def __init__(self):
+        config = Config()
+        self.setPanId(config.getPanid())
         return
 
     """ PAN-ID関連"""
