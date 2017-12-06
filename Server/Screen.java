@@ -169,6 +169,7 @@ public class Screen extends JPanel implements MouseListener, MouseMotionListener
         pCommand.setBackground( new Color(175, 220, 220) );
 
         tfCommand = new JTextField();
+        tfCommand.setText("0001FFFF000A000B5F00HELLO");
         pCommand.add( tfCommand );
 
         JPanel pCommandChild = new JPanel();
