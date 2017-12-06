@@ -46,7 +46,7 @@ class Compress:
     def __int2str(self, d):
         r = ""
         for i in range(len(d)):
-            r += "{0:x}".format(d[i])  # {0:X}:大文字 {0:x}:小文字
+            r += "{0:X}".format(d[i])  # {0:X}:大文字 {0:x}:小文字
         return r
 
     def __compress(self, d):
