@@ -1,5 +1,6 @@
 # -*- encoding:utf-8 -*-
 from collections import deque
+from Compress import Compress
 from Config import Config
 from Lora import Lora
 from Packet import Packet
@@ -16,6 +17,7 @@ class Network(Lora):
     """
     def __init__(self):
         super(Network, self).__init__()
+        self.__compress = Compress()
         self.__config = Config()
         self.__setting()
         return
@@ -62,6 +64,7 @@ class Network(Lora):
                 None,
                 self.send,
                 self.route,
+                self.__compress,
                 self.__config.getOwnid()
             )
         )
@@ -208,6 +211,7 @@ class Network(Lora):
 
         # Routeへ転送
         if packetType == 6:
+            newMsg = msg[:24] + self.__compress.uncompress(payloadBuffer)
             self.route.putRoute(newMsg)
 
         # メッセージ転送
@@ -242,7 +246,7 @@ class Network(Lora):
 
     """ ルートリクエスト(10秒間隔) """
     @staticmethod
-    def __broadcastThread(self, sendMethod, routeInst, ownid):
+    def __broadcastThread(self, sendMethod, routeInst, compInst, ownid):
         while True:
             # 待機
             r = randrange(200, 300) / 10.0
@@ -251,6 +255,7 @@ class Network(Lora):
             # Payload生成
             payload = "{0}00".format(ownid)
             payload += routeInst.getRoute(True)
+            payload = compInst.compress(payload)
 
             # 送信パケット生成
             packet = Packet()
