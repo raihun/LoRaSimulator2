@@ -26,23 +26,24 @@ class Route:
         self.thCountAlive.start()
         return
 
-    def getNextnode(self, datalinkDst):
+    def getNextnode(self, networkDst):
         """
             ネットワーク層の、宛先IDを引数に渡すと、
             次に転送するべきノードID(データリンク層宛先ID)を返す
             datalinkDst="000A"などの文字列4桁
         """
-        nextDstList = self.select("des", datalinkDst)
-        if not any(nextDstList):
+        matchList = self.search("nwdst", networkDst)
+        if not any(matchList):
             return None
-        selectHopsList = [nextDst['HOP'] for nextDst in nextDstList]
+        hopList = [m['HOP'] for m in matchList]
 
-        if min(selectHopsList) >= 255:  # 最小HOP数がMAXの場合
+        minHop = min(hopList)
+        if minHop >= 255:  # 最小HOP数がMAX(=時間切れ)の場合
             return None
 
-        return nextDstList[selectHopsList.index(min(selectHopsList))][1]
+        return matchList[hopList.index(minHop)]['DLDST']
 
-    def select(self, columnName="", data=""):
+    def search(self, columnName="", data=""):
         """
             ルーティングテーブルからカラムとデータを指定で
             対象のリストを返す
@@ -50,15 +51,15 @@ class Route:
         """
         if columnName == "":
             return self.__routeList
-        elif re.compile(columnName, re.IGNORECASE).match("des") is not None:
+        elif re.compile(columnName, re.IGNORECASE).match("nwdst") is not None:
             return list(filter(lambda x: x['NWDST'] == data, self.__routeList))
-        elif re.compile(columnName, re.IGNORECASE).match("datalinkDst") is not None:
+        elif re.compile(columnName, re.IGNORECASE).match("dldst") is not None:
             return list(filter(lambda x: x['DLDST'] == data, self.__routeList))
         elif re.compile(columnName, re.IGNORECASE).match("hop") is not None:
             return list(filter(lambda x: x['HOP'] == data, self.__routeList))
-        elif re.compile(columnName, re.IGNORECASE).match("aliveCount") is not None:
+        elif re.compile(columnName, re.IGNORECASE).match("time") is not None:
             return list(filter(lambda x: x['TIME'] == data, self.__routeList))
-        elif re.compile(columnName, re.IGNORECASE).match("RSSI") is not None:
+        elif re.compile(columnName, re.IGNORECASE).match("rssi") is not None:
             return list(filter(lambda x: x['RSSI'] == data, self.__routeList))
         else:
             return
@@ -74,12 +75,12 @@ class Route:
 
         self.__resetAliveTime(datalinkSrc)
 
-        recvTables = [payload[i * 6:i * 6 + 6]
+        payloadList = [payload[i * 6:i * 6 + 6]
                       for i in range(int(len(payload) / 6))]
 
-        for rt in recvTables:
-            nwdst = rt[:4]
-            hop = int(rt[4:6], 16)
+        for p in payloadList:
+            nwdst = p[:4]
+            hop = int(p[4:6], 16)
 
             # ネットワーク層宛先IDが自分宛ての場合、不要な情報のため除外する
             if nwdst == self.__config.getOwnid():
