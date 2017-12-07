@@ -51,15 +51,15 @@ class Route:
         if columnName == "":
             return self.__routeList
         elif re.compile(columnName, re.IGNORECASE).match("des") is not None:
-            return list(filter(lambda x: x[0] == data, self.__routeList))
+            return list(filter(lambda x: x['NWDST'] == data, self.__routeList))
         elif re.compile(columnName, re.IGNORECASE).match("datalinkDst") is not None:
-            return list(filter(lambda x: x[1] == data, self.__routeList))
+            return list(filter(lambda x: x['DLDST'] == data, self.__routeList))
         elif re.compile(columnName, re.IGNORECASE).match("hop") is not None:
-            return list(filter(lambda x: x[2] == data, self.__routeList))
+            return list(filter(lambda x: x['HOP'] == data, self.__routeList))
         elif re.compile(columnName, re.IGNORECASE).match("aliveCount") is not None:
-            return list(filter(lambda x: x[3] == data, self.__routeList))
+            return list(filter(lambda x: x['TIME'] == data, self.__routeList))
         elif re.compile(columnName, re.IGNORECASE).match("RSSI") is not None:
-            return list(filter(lambda x: x[4] == data, self.__routeList))
+            return list(filter(lambda x: x['RSSI'] == data, self.__routeList))
         else:
             return
 
