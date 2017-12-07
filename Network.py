@@ -207,7 +207,7 @@ class Network(Lora):
         """
             メッセージ転送
         """
-        print("Receive: ", newMsg)
+        print("Receive:", newMsg)
 
         # Routeへ転送
         if packetType == 6:
@@ -254,7 +254,7 @@ class Network(Lora):
 
             # Payload生成
             payload = "{0}00".format(ownid)
-            payload += routeInst.getRoute(True)
+            payload += routeInst.getRoute()
             payload = compInst.compress(payload)
 
             # 送信パケット生成
