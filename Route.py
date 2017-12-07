@@ -47,7 +47,7 @@ class Route:
         for m in matchList:
             if m['HOP'] == min(hopList):
                 minHopList.append(m)
-        sortedList = sorted(minHopList, key=lambda x:-x['RSSI'])
+        sortedList = sorted(minHopList, key=lambda x: -x['RSSI'])
 
         return sortedList[0]['DLDST']
 
@@ -118,15 +118,14 @@ class Route:
         for t in self.__routeTable:
             find = False  # 重複確認を行いつつ、最適のresultを作成
             for r in result:
-                if r['NWDST'] != t['NWDST']:  # 重複していない場合
-                    continue
-                find = True  # 重複フラグ
-                if r['HOP'] > t['HOP']:  # HOP数が少ない場合、上書き
-                    r['HOP'] = t['HOP']
+                if r['NWDST'] == t['NWDST']:
+                    find = True  # 重複フラグ
+                    if r['HOP'] > t['HOP']:  # HOP数が少ない場合、上書き
+                        r['HOP'] = t['HOP']
             if not find:
-                result.append({'NWDST':t['NWDST'], 'HOP':t['HOP']})
+                result.append({'NWDST': t['NWDST'], 'HOP': t['HOP']})
 
-        # payload部作成
+        # payload作成
         payload = ""
         for r in result:
             payload += "{0}{1:02X}".format(r['NWDST'], r['HOP'])
