@@ -17,3 +17,7 @@ ES920LR関連ライブラリ &amp; シミュレータ
     - pyserial
 - Java 8
     - Java SE Development Kit (1.8.0_141)
+
+## 制限
+- シミュレータを使用する際、先にサーバを立ち上げてください
+- LoRaのownidに、0000・FFFE・FFFFを使わないでください
