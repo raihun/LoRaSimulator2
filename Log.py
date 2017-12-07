@@ -16,8 +16,8 @@ class Log:
     @staticmethod
     def add(message, title="Info"):
         # 1行ログ生成
-        line = datetime.now().strftime("[%Y/%m/%d %H:%M:%S]\t")
-        line += "[{0}]\t{1}\n".format(title, message)
+        time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        line = "[{0}]\t[{1}]\t{2}\n".format(time, title, message)
 
         # ファイル追記
         path = Log.__dirname + "/" + datetime.now().strftime("Log_%Y%m%d.txt")
