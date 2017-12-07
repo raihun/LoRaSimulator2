@@ -11,8 +11,9 @@ ES920LR関連ライブラリ &amp; シミュレータ
     - javac *.java -> java Main  
     もしくは、make  
 
-## 動作環境
+## 動作確認環境
 - Python3系
-    - pip3 install pyserial
+- Python3系プラグイン
+    - pyserial
 - Java 8
     - Java SE Development Kit (1.8.0_141)
