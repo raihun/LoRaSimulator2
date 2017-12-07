@@ -96,7 +96,7 @@ class Packet:
 
     def decrementTTL(self):
         self.__ttl -= 1
-        if(self.__ttl <= 0):
+        if self.__ttl <= 0:
             return False  # 失敗
         return True  # 成功
 
@@ -138,36 +138,33 @@ class Packet:
 
     """ 生パケット -> Packet() """
     def importPacket(self, data):
-        # print("[Raw packetR] {0}".format(data))
-        # フレーム長 未満
-        if len(data) < 24:
+        if len(data) < 24:  # フレーム長 未満
             return
-        self.setRSSI(self.convertRSSI(data[0:4]))
+        self.setRSSI(self.__convertRSSI(data[0:4]))
         self.setPanId(data[4:8])
         self.setDatalinkSrc(data[8:12])
         self.setNetworkDst(data[12:16])
         self.setNetworkSrc(data[16:20])
         margedData = int(data[20:22], 16)
-        ptype, ttl = self.purgeByte(margedData)
+        ptype, ttl = self.__purgeByte(margedData)
         self.setPacketType(ptype)
         self.setTTL(ttl)
         sequenceNo = int(data[22:24], 16)
         self.setSequenceNo(sequenceNo)
 
-        # ペイロードなし
-        if len(data) <= 24:
+        if len(data) <= 24:  # ペイロードなし
             return
         self.setPayload(data[24:])
         return
 
-    """ Packet() -> 生パケット """
+    """ Packet() -> 生パケット (payload 38byte超えは複数パケ化) """
     def exportPacket(self):
-        data = []
+        rawList = []
         splitPayload = self.__split_str(self.getPayload(), 38)
         size = len(splitPayload) - 1
         i = 0
         while True:
-            datum = "{0}{1}{2}{3}".format(
+            raw = "{0}{1}{2}{3}".format(
                 self.getPanId(),
                 self.getDatalinkDst(),
                 self.getNetworkDst(),
@@ -177,29 +174,28 @@ class Packet:
                 self.setPacketType(2)
             if i >= size and self.getPacketType() == 4:
                 self.setPacketType(6)
-            datum += "{0:02X}".format(self.mergeByte())
-            datum += "{0:02X}".format(i % 0xFF)
+            raw += "{0:02X}".format(self.__mergeByte())
+            raw += "{0:02X}".format(i % 0xFF)
             if size >= 0:
-                datum += splitPayload[i]
-            data.append(datum)
+                raw += splitPayload[i]
+            rawList.append(raw)
             i += 1
             if i > size:
                 break
-        # print("[Raw packetS] {0}".format(data))
-        return data
+        return rawList
 
-    """ Packet() -> 生パケット (転送用) """
+    """ Packet() -> 生パケット (1パケット転送用) """
     def transferPacket(self):
-        datum = "{0}{1}{2}{3}".format(
+        raw = "{0}{1}{2}{3}".format(
             self.getPanId(),
             self.getDatalinkDst(),
             self.getNetworkDst(),
             self.getNetworkSrc()
         )
-        datum += "{0:02X}".format(self.mergeByte())
-        datum += "{0:02X}".format(self.getSequenceNo())
-        datum += self.getPayload()
-        return datum
+        raw += "{0:02X}".format(self.__mergeByte())
+        raw += "{0:02X}".format(self.getSequenceNo())
+        raw += self.getPayload()
+        return raw
 
     """ 文字列を指定バイト数ごとに分割 """
     def __split_str(self, s, n):
@@ -207,15 +203,15 @@ class Packet:
         return [s[i:i+n] for i in range(0, l, n)]
 
     """ RSSI値 算出 """
-    def convertRSSI(self, rawrssi):
+    def __convertRSSI(self, rawrssi):
         rawrssi = int(rawrssi, 16)
         return -(rawrssi & 0x8000) | (rawrssi & 0x7FFF)
 
     """ Type + TTL 関連 """
-    def mergeByte(self):
+    def __mergeByte(self):
         ptype = self.getPacketType()
         ttl = self.getTTL()
         return ptype << 5 | ttl
 
-    def purgeByte(self, data):
+    def __purgeByte(self, data):
         return [data >> 5, data & 0x1F]
