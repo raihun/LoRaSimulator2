@@ -15,6 +15,7 @@ ES920LR関連ライブラリ &amp; シミュレータ
 - Python3系
 - Python3系プラグイン
     - pyserial
+    - pycrypto
 - Java 8
     - Java SE Development Kit (1.8.0_141)
 
